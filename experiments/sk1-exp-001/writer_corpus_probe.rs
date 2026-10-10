@@ -7,7 +7,7 @@ use anyhow::{Context, Result, bail, ensure};
 use pub_editor::{EditorSession, Sha256Digest, open_mature_0x2c_editor};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use std::{env, fs, io::Write, path::Path};
+use std::{env, fs, io::Write};
 
 const ACCEPTED_CONTROL_SHA: &str =
     "b9b789f35a34e016faceb27acf50bf0621273a7d612762ecc17c56ca450fe715";
@@ -284,6 +284,6 @@ fn main() -> Result<()> {
     file.write_all(&serde_json::to_vec_pretty(&report)?)?;
     file.write_all(b"\n")?;
     file.sync_all()?;
-    println!("{}", serde_json::to_string(&json!({"source_sha256": expected_sha, "result": report["result"]})))?;
+    println!("{}", serde_json::to_string(&json!({"source_sha256": expected_sha, "result": report["result"]}))?);
     Ok(())
 }
