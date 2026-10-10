@@ -21,6 +21,9 @@ PAIR_FIELDS={"slot","ascii_rank","ascii_total","offset_utf16",
              "delete_insert_returns_original_bytes",
              "both_final_byte_equal","insert_delete_cfb","delete_insert_cfb"}
 DIFF_FIELDS={
+    "source_syid_first_dword","final_syid_first_dword","syid_first_dword_delta",
+    "same_syid_live_ids","same_syid_count",
+    "syid_first_dword_changed_bytes","quill_changed_bytes_outside_syid_first_dword",
     "schema","source_file_bytes","final_file_bytes","source_directory_entries",
     "final_directory_entries","missing_cfb_paths","added_cfb_paths",
     "cfb_entry_type_changes","non_quill_streams_checked","non_quill_streams_changed",
@@ -40,7 +43,7 @@ KINDS={"TEXT","SYID","STRS","FDPP","FDPC","BTEP","BTEC","TOKN","TCD","OTHER"}
 def check_diff(d):
     assert isinstance(d,dict) and set(d)==DIFF_FIELDS
     assert d["schema"]=="sk1.cfb-diag-pub-t-957.diff.v1"
-    bool_keys={"quill_bytes_equal","all_logical_streams_equal",
+    bool_keys={"same_syid_live_ids","same_syid_count","quill_bytes_equal","all_logical_streams_equal",
         "physical_only_container_difference","whole_file_equal",
         "same_quill_story_syid_sequence","same_quill_story_utf16_lengths",
         "same_quill_TEXT_payload_bytes","matched_descriptor_sequence"}
@@ -50,15 +53,34 @@ def check_diff(d):
     assert d["source_pub_output_authorized"] is False
     sha64=lambda value:isinstance(value,str) and SHA.fullmatch(value)
     assert sha64(d["source_quill_sha256"]) and sha64(d["final_quill_sha256"])
-    null_int={"quill_differing_byte_positions_equal_len",
+    null_int={"syid_first_dword_changed_bytes","quill_changed_bytes_outside_syid_first_dword",
+        "quill_differing_byte_positions_equal_len",
         "altered_chunk_payload_count","equal_chunk_payload_count",
         "altered_descriptor_offsets","altered_descriptor_lengths","altered_descriptor_options"}
     integers=DIFF_FIELDS-bool_keys-null_int-{
         "schema","publisher_native_acceptance","source_pub_output_authorized",
-        "source_quill_sha256","final_quill_sha256","altered_chunks_by_kind"
+        "source_quill_sha256","final_quill_sha256","altered_chunks_by_kind",
+        "syid_first_dword_delta"
     }
     for key in integers:
         assert type(d[key]) is int and 0<=d[key]<=2**31,key
+    assert 0<=d["source_syid_first_dword"]<=2**32-1
+    assert 0<=d["final_syid_first_dword"]<=2**32-1
+    assert type(d["syid_first_dword_delta"]) is int
+    assert d["syid_first_dword_delta"]==(
+        d["final_syid_first_dword"]-d["source_syid_first_dword"])
+    assert d["same_syid_live_ids"]==d["same_quill_story_syid_sequence"]
+    for k in ("syid_first_dword_changed_bytes",
+              "quill_changed_bytes_outside_syid_first_dword"):
+        assert d[k] is None or (type(d[k]) is int and 0<=d[k]<=12*1024*1024)
+    if d["syid_first_dword_changed_bytes"] is not None:
+        assert d["quill_changed_bytes_outside_syid_first_dword"] is not None
+        assert d["syid_first_dword_changed_bytes"]<=4
+        assert d["quill_differing_byte_positions_equal_len"]==(
+            d["syid_first_dword_changed_bytes"]+
+            d["quill_changed_bytes_outside_syid_first_dword"])
+    else:
+        assert d["quill_changed_bytes_outside_syid_first_dword"] is None
     assert d["source_file_bytes"]>0 and d["final_file_bytes"]>0
     assert d["source_quill_bytes"]>0 and d["final_quill_bytes"]>0
     assert d["quill_streams_found"]==1
@@ -85,7 +107,9 @@ def check_diff(d):
     assert isinstance(changed,dict) and set(changed).issubset(KINDS)
     assert all(type(v) is int and v>0 and v<10000 for v in changed.values())
     if d["matched_descriptor_sequence"]:
-        for key in null_int-{"quill_differing_byte_positions_equal_len"}:
+        for key in null_int-{"quill_differing_byte_positions_equal_len",
+                             "syid_first_dword_changed_bytes",
+                             "quill_changed_bytes_outside_syid_first_dword"}:
             assert type(d[key]) is int and 0<=d[key]<100000,key
         assert d["source_quill_descriptor_count"]==d["final_quill_descriptor_count"]
         assert d["altered_chunk_payload_count"]==sum(changed.values())
