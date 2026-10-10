@@ -6,6 +6,7 @@ on:
     paths:
       - 'experiments/quill/diag/pub-t-969/**'
       - '.github/workflows/sk1-quill-diag-pub-t-969.yml'
+      - 'experiments/registry.json'
 
 permissions:
   contents: read
