@@ -68,7 +68,7 @@ class RegistryGateTests(unittest.TestCase):
         self.assertTrue(any("unregistered" in err for err in self.check()))
 
     def test_parked_task_code_rejected(self):
-        p=self.root/"experiments/quill/exp/pub-t-953"
+        p=self.root/"experiments/versions/cmp/pub-t-955"
         p.mkdir(parents=True)
         (p/"run.py").write_text("pass")
         self.assertTrue(any("parked task" in err for err in self.check()))
@@ -86,8 +86,16 @@ class RegistryGateTests(unittest.TestCase):
         self.records["records"].append(r)
         self.assertTrue(any("new legacy numbered ID forbidden" in err for err in self.check()))
 
+    def test_completed_task_missing_evidence_rejected(self):
+        self.records["records"][9]["evidence_notion"]=None
+        self.assertTrue(any("completed task lacks verified Notion evidence" in err for err in self.check()))
+
+    def test_parked_task_with_branch_rejected(self):
+        self.records["records"][8]["git_ref"]="sk1/versions-cmp-pub-t-955"
+        self.assertTrue(any("parked task must have no git_ref" in err for err in self.check()))
+
     def test_claimed_missing_branch_rejected(self):
-        self.records["records"][6]["state"]="claimed"
+        self.records["records"][8]["state"]="claimed"
         self.assertTrue(any("must use explicit task branch" in err for err in self.check()))
 
 
