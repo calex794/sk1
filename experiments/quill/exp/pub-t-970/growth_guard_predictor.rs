@@ -243,9 +243,9 @@ fn probe(source: &[u8], expected_sha:&str) -> Result<Value> {
         let total=letters.len();
         let choices=[("first",0usize),("second",1usize.min(total-1)),
            ("middle",(total-1)/2),("last",total-1)];
-        let growths=[(1usize,classify_growth(&quill,&catalog,1)?),
-                     (2usize,classify_growth(&quill,&catalog,2)?),
-                     (8usize,classify_growth(&quill,&catalog,8)?)];
+        let growths=[(32usize,classify_growth(&quill,&catalog,32)?),
+                     (128usize,classify_growth(&quill,&catalog,128)?),
+                     (256usize,classify_growth(&quill,&catalog,256)?)];
         let mut used=HashSet::new();
         for (slot,rank) in choices {
             let (byte_offset,ch)=letters[rank];

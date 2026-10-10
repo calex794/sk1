@@ -70,7 +70,7 @@ def verify(folder:Path):
     assert plan["excluded_original_35"]==35 and plan["excluded_existing_62"]==62
     assert plan["host_quotas"]==HOST_QUOTAS
     assert plan["excluded_969_sources"]==27 and plan["excluded_969_quotas"]==EXCLUDED_969_QUOTAS
-    assert plan["doses_utf16"]==[1,2,8]
+    assert plan["doses_utf16"]==[32,128,256]
     assert plan["excluded_968_sources"]==27 and plan["excluded_968_quotas"]==EXCLUDED_968_QUOTAS
     assert plan["source_count"]==27
     assert plan["slots"]==list(SLOTS)
@@ -150,7 +150,7 @@ def verify(folder:Path):
                 assert type(arm["ascii_rank"]) is int and arm["ascii_rank"]>=0
                 assert type(arm["at_utf16"]) is int
                 assert 0<=arm["at_utf16"]<story["story_utf16_length"]
-                assert arm["dose_utf16"] in [1,2,8]
+                assert arm["dose_utf16"] in [32,128,256]
                 assert (arm["at_utf16"],arm["dose_utf16"]) not in unique;unique.add((arm["at_utf16"],arm["dose_utf16"]))
                 assert arm["story_utf16_length"]==story["story_utf16_length"]
                 assert type(arm["source_tokn_hit"]) is bool
