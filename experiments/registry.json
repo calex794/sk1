@@ -157,6 +157,18 @@
       "evidence_notion": "https://app.notion.com/p/3f532a84beec812795d1e786aef6f448",
       "code_path": "experiments/cfb/diag/pub-t-959",
       "git_ref": "sk1/cfb-diag-pub-t-959"
+    },
+    {
+      "key": "SK1-QUILL-EXP-PUB-T-962",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": "PUB-T-962",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81a090b3f065a34c2c16",
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec815796b7fe9571edfdc1",
+      "code_path": "experiments/quill/exp/pub-t-962",
+      "git_ref": "sk1/quill-exp-pub-t-962"
     }
   ]
 }
