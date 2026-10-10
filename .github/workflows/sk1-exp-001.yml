@@ -1,0 +1,88 @@
+name: SK1 EXP-001 Writer applicability
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_sources:
+        description: 'Maximum public eligible sources (1..35)'
+        required: false
+        default: '35'
+  push:
+    paths:
+      - 'experiments/sk1-exp-001/**'
+      - '.github/workflows/sk1-exp-001.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-exp-001-{{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  writer-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install experiment-only probe inside an ephemeral copy of rar2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          cp experiments/sk1-exp-001/writer_corpus_probe.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_exp_001_writer_probe.rs
+      - name: Build experiment and original calibration control
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_exp_001_writer_probe
+          mkdir -p experiment-results
+          cargo run --quiet --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example cross_fixture_story_probe -- \
+            experiment-results/calibration.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('experiment-results/calibration.json').read_text())
+          assert x['positive_control']['receipt']['editor_project_replay_byte_equal']
+          assert x['positive_control']['receipt']['output_sha256'] == (
+              'b9b789f35a34e016faceb27acf50bf0621273a7d612762ecc17c56ca450fe715')
+          PY
+      - name: Run SHA-verified independent corpus
+        shell: bash
+        env:
+          LIMIT: {{ inputs.max_sources || '35' }}
+        run: |
+          set -euo pipefail
+          python3 experiments/sk1-exp-001/run.py \
+            --rar2 source-rar2 \
+            --out experiment-results \
+            --max-sources "$LIMIT"
+          python3 experiments/sk1-exp-001/check_report.py \
+            experiment-results/report.json
+      - name: Upload source-safe evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-exp-001-source-safe
+          path: |
+            experiment-results/plan.json
+            experiment-results/records.json
+            experiment-results/report.json
+          if-no-files-found: warn
+          retention-days: 30
