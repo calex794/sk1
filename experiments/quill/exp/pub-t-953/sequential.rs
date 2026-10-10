@@ -1,7 +1,7 @@
 //! SK1-QUILL-EXP-PUB-T-953: sequence/order experiment using ONLY pinned rar2 Writer.
 //! All PUB and Story bytes stay in ephemeral worker memory/directory.
 use anyhow::{ensure, Context, Result};
-use pub_editor::{EditorSession, Sha256Digest, open_mature_0x2c_editor};
+use pub_editor::{Sha256Digest, open_mature_0x2c_editor};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{env, fs, io::{Cursor, Write}};
@@ -147,7 +147,7 @@ fn required_number(w: &Value, key: &str) -> Result<usize> {
     usize::try_from(need(w,key)?.as_u64().context("invalid nonnegative number")?)
         .context("usize overflow")
 }
-fn required_hash(w: &Value, key: &str) -> Result<&str> {
+fn required_hash<'a>(w: &'a Value, key: &str) -> Result<&'a str> {
     let s = need(w,key)?.as_str().context("expected string")?;
     ensure!(s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit()),
         "invalid pinned SHA");
