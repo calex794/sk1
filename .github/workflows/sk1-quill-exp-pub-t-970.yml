@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 experiments/quill/exp/pub-t-970/check_report.py results-t970
+          python3 experiments/quill/exp/pub-t-970/check_report.py results-t970-high-dose
       - name: Upload only verified source-safe receipts
         if: steps.verify.outcome == 'success'
         uses: actions/upload-artifact@v4
