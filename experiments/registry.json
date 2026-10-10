@@ -152,9 +152,9 @@
       "area": "CFB",
       "type": "DIAG",
       "task_id": "PUB-T-959",
-      "state": "claimed",
+      "state": "completed",
       "task_notion": "https://app.notion.com/p/3f532a84beec81aeab95c4e7c55e9ba7",
-      "evidence_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec812795d1e786aef6f448",
       "code_path": "experiments/cfb/diag/pub-t-959",
       "git_ref": "sk1/cfb-diag-pub-t-959"
     }
