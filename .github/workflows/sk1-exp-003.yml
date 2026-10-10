@@ -1,0 +1,74 @@
+name: SK1 EXP-003 Quill matched insertion vs deletion
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/sk1-exp-003/**'
+      - '.github/workflows/sk1-exp-003.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-exp-003-main
+  cancel-in-progress: true
+
+jobs:
+  same-offset-contrast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Compile isolated positional experiment on exact original Writer/Reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          cp experiments/sk1-exp-003/same_offset_growth.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_exp_003_same_offset.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_exp_003_same_offset
+          mkdir -p exp003-results
+          cargo run --quiet --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example cross_fixture_story_probe -- \
+            exp003-results/old-calibration.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("exp003-results/old-calibration.json").read_text())
+          assert p["positive_control"]["receipt"]["output_sha256"] == (
+              "b9b789f35a34e016faceb27acf50bf0621273a7d612762ecc17c56ca450fe715")
+          assert p["positive_control"]["receipt"]["editor_project_replay_byte_equal"]
+          PY
+      - name: Run 26-source matched +/-1 contrast
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/sk1-exp-003/run.py \
+            --rar2 source-rar2 --output exp003-results
+          python3 experiments/sk1-exp-003/check_report.py \
+            exp003-results/report.json
+      - name: Publish source-safe verified evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-exp-003-verified-source-safe
+          path: |
+            exp003-results/plan.json
+            exp003-results/records.json
+            exp003-results/report.json
+          retention-days: 30
+          if-no-files-found: error
