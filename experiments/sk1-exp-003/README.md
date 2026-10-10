@@ -3,7 +3,7 @@
 Notion journal: https://app.notion.com/p/3f532a84beec81ec92f9e64a490be67c
 
 ## What we test
-Under the **same immutable source SHA, Story and UTF-16 offset**, does the current bounded Writer accept both `delete_one` (remove the selected ASCII alphanumeric character, Δ−1) and `insert_one` (insert ASCII "X" immediately before it, Δ+1)?
+Under the **same immutable source SHA, Story and UTF-16 offset**, does the current bounded Writer accept both `delete_one` (remove the selected ASCII alphanumeric character, Δ−1) and `insert_one` (insert a deterministic ASCII marker (one of X/Q/Z, distinct from both adjacent characters) immediately before it, Δ+1)?
 
 The same 26 public SHA-verified PUBs and first three eligible Stories from EXP-001/002 are used. Only three distinct position slots are tried: first, second, middle (deduplicated for short Stories). Two fully independent operations start from the exact unmodified source for each slot.
 

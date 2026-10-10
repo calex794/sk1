@@ -132,7 +132,13 @@ fn probe(source: &[u8], expected_sha: &str, max_stories: usize) -> Result<Value>
                 if operation == "delete_one" {
                     after.remove(byte_offset);
                 } else {
-                    after.insert(byte_offset, 'X');
+                    // Avoid ambiguous insertion-diff alignment at runs of equal
+                    // characters: marker differs from both immediate neighbors.
+                    let prev = before[..byte_offset].chars().last();
+                    let marker = ['X', 'Q', 'Z'].into_iter()
+                        .find(|&c| Some(c) != prev && c != ch)
+                        .context("cannot choose unambiguous ASCII marker")?;
+                    after.insert(byte_offset, marker);
                 }
                 let mut item = json!({
                 "operation": operation,
