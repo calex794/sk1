@@ -28,3 +28,15 @@ Since the Writer code explicitly rejects `edit.delete_utf16==0 && boundary.value
 
 ## Proof/transfer
 See GitHub Actions [SK1 QUILL DIAG PUB-T-958](https://github.com/calex794/sk1/actions/workflows/sk1-quill-diag-pub-t-958.yml); full result and permanent knowledge will be recorded in canonical [Notion PUB-T-958](https://app.notion.com/p/3f532a84beec81de8979ed991021c233). No merge to rar2.
+
+## Verified outcome — task closed
+
+[Canonical Notion task](https://app.notion.com/p/3f532a84beec81de8979ed991021c233) · [Permanent knowledge](https://app.notion.com/p/3f532a84beec81ea98a4f71b46009882) · [GitHub Actions #38084617775 SUCCESS](https://github.com/calex794/sk1/actions/runs/38084617775).
+
+Exact tested SK1 `0e11ebee1b5585d25ac8393bf65f28a84d54d4de`, immutable `rar2@703808408fd919e564a90cdc236e81db3c04af8b`, [original source-safe JSON artifact #11681960673](https://github.com/calex794/sk1/actions/runs/38084617775/artifacts/11681960673), independently verified ZIP SHA256 `68190827993505de9f1c82dd6cfac96a8eee75cc3bfc3abdc49002b8fa8359de`.
+
+Existing baseline reproduced: 26 SHA-verified public PUB, 65 ordinary Story, 194 positions, 77 independently both single Writer insert/delete `HOSTED_PASS` cases. Read-only FDPP/FDPC geometry from the **real intermediate after deletion** predicted exactly 2/2 `quill_insertion_at_fd_boundary` outcomes and 75/75 reverse insert `HOSTED_PASS`: TP=2, TN=75, FP=FN=0.
+
+Both hits are in **FDPC** (FDPP hit 0); the original boundary was at the **end of the deleted character**, and its persisted value shifted back by 2 bytes onto reverse insertion start. Both FDPP and FDPC source→delete shift formulas and target Story TEXT starts validated in all 77 cases. Two SHA/Story/UTF-16 negative controls are in permanent Notion knowledge.
+
+**Conclusion:** exact behavior of the **same pinned Writer implementation**, not independent proof of native Publisher's FD semantics or permission to bypass guard. No code changes to `rar2`, no second Writer; future work needs a new question or different oracle.

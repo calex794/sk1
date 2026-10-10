@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'experiments/quill/diag/pub-t-958/**'
-      - 'experiments/registry.json'
+      - 'experiments/quill/diag/pub-t-958/fd_guard.rs'
+      - 'experiments/quill/diag/pub-t-958/run.py'
+      - 'experiments/quill/diag/pub-t-958/check_report.py'
       - '.github/workflows/sk1-quill-diag-pub-t-958.yml'
 
 permissions:
