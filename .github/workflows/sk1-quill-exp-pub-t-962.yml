@@ -1,0 +1,82 @@
+name: SK1 QUILL EXP PUB-T-962 real-source growth envelopes
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-962/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-962.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-962
+  cancel-in-progress: true
+
+jobs:
+  bounded-growth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout SK1 isolated branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout immutable upstream Writer
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install pinned physical CFB reader
+        run: python3 -m pip install --disable-pip-version-check olefile==0.47
+      - name: Compile pinned Writer-based arm and verify task registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 -m py_compile experiments/quill/exp/pub-t-962/run.py \
+            experiments/quill/exp/pub-t-962/check_report.py
+          cp experiments/quill/exp/pub-t-962/growth_probe.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_962_growth.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_962_growth
+      - name: Evaluate the fixed 27-SHA real-source plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/exp/pub-t-962/run.py \
+            --rar2 source-rar2 --output results-t962
+          status=$?
+          set -e
+          echo "$status" > result-exit-code.txt
+      - name: Independently reject unsafe or inconsistent receipts
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-962/check_report.py results-t962
+      - name: Upload validated source-safe statistics only
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-962-growth-envelope-source-safe
+          path: |
+            results-t962/plan.json
+            results-t962/records.json
+            results-t962/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Check bounded scientific admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat result-exit-code.txt)" = 0
