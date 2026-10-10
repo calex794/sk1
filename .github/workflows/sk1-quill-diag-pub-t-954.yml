@@ -5,8 +5,6 @@ on:
   push:
     paths:
       - 'experiments/quill/diag/pub-t-954/**'
-      - 'experiments/registry.json'
-      - '.github/workflows/sk1-quill-diag-pub-t-954.yml'
 
 permissions:
   contents: read
