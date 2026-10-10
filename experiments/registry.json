@@ -296,9 +296,9 @@
       "area": "CFB",
       "type": "EXP",
       "task_id": "PUB-T-973",
-      "state": "running",
+      "state": "completed",
       "task_notion": "https://app.notion.com/p/3f532a84beec8176aec6c23cd37e8773",
-      "evidence_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81f88562ff75cfc816f0",
       "code_path": "experiments/cfb/exp/pub-t-973",
       "git_ref": "sk1/cfb-exp-pub-t-973"
     }
