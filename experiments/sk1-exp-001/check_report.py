@@ -5,14 +5,14 @@ import sys
 from pathlib import Path
 
 SAFE_STATUSES = {
-    "HOSTED_PASS", "OTHER_STORIES_CHANGED_OR_IDENTITY_DRIFT",
+    "HOSTED_PASS", "SYID_OR_UNRELATED_STORY_MISMATCH", "SYID_VERIFICATION_UNAVAILABLE",
     "CANONICAL_EDIT_REJECTED", "writer_blocked", "reader_or_editor_reopen_blocked",
     "project_replay_blocked", "bounded_candidate_validation_failed", "NOT_EVALUATED"
 }
 SAFE_KEYS = {
     "arm", "before_utf16_units", "after_utf16_units", "result",
     "writer_blocker_code", "output_sha256", "candidate_bytes",
-    "project_replay_byte_equal", "other_story_text_and_identity_preserved"
+    "project_replay_byte_equal", "quill_syid_and_other_story_text_preserved"
 }
 HEX = set("0123456789abcdef")
 def sha(v):
@@ -23,6 +23,7 @@ def validate(report):
     assert report["upstream_commit"] == "703808408fd919e564a90cdc236e81db3c04af8b"
     assert report["native_publisher_acceptance"] == "NOT_EVALUATED"
     assert report["product_pub_download_authorized"] is False
+    assert report["summary"]["evaluated"] >= 1, "zero evaluated sources: the experiment did not execute"
     records = report["records"]
     assert isinstance(records, list) and len(records) <= 35
     assert len(set(row["source_sha256"] for row in records)) == len(records)

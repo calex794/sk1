@@ -178,6 +178,7 @@ def main() -> int:
     ap.add_argument("--max-stories", type=int, default=3)
     ap.add_argument("--index-only", action="store_true")
     args = ap.parse_args()
+    args.rar2 = args.rar2.resolve(strict=True)  # subprocess cwd changes; manifest must stay absolute
     if not (1 <= args.max_sources <= 35 and 1 <= args.max_stories <= 3):
         ap.error("limits out of bounds")
     raw = load_manifest(args.manifest)

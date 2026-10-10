@@ -234,22 +234,57 @@ fn probe(source: &[u8], expected_sha: &str, max_stories: usize) -> Result<Value>
                 Ok(receipt) => {
                     let candidate = edited.materialize_mature_0x2c_native_pub_candidate(source)?;
                     let reopened = open_mature_0x2c_editor(&candidate.bytes, candidate.output_hash)?;
-                    // Source-neutral identity continuity: fail closed if any unrelated
-                    // Story identity/content differs. No Story contents leave this process.
-                    let all_other_stories_preserved = reopened.graph().stories.len() == baseline_stories.len()
-                        && baseline_stories.iter().all(|(other_id, story)| {
-                            if *other_id == id { true }
-                            else { reopened.graph().stories.get(other_id).is_some_and(|next| next.text == story.text) }
-                        });
-                    attempt["result"] = json!(if all_other_stories_preserved {
-                        "HOSTED_PASS"
-                    } else {
-                        "OTHER_STORIES_CHANGED_OR_IDENTITY_DRIFT"
-                    });
+                    // Canonical StoryIds are salted with each file's SHA. Compare
+                    // underlying Quill SYIDs across Writer output instead of
+                    // treating expected source-ID changes as corruption.
+                    let syid_preservation = (|| -> Result<bool> {
+                        let source_quill = pub_cfb::read_stream_reader(
+                            std::io::Cursor::new(source), pub_reader::QUILL_STREAM_PATH)?;
+                        let output_quill = pub_cfb::read_stream_reader(
+                            std::io::Cursor::new(&candidate.bytes), pub_reader::QUILL_STREAM_PATH)?;
+                        let source_catalog = pub_quill::parse_confirmed_story_catalog(
+                            pub_core::StreamPath(pub_reader::QUILL_STREAM_PATH.into()), &source_quill)?;
+                        let output_catalog = pub_quill::parse_confirmed_story_catalog(
+                            pub_core::StreamPath(pub_reader::QUILL_STREAM_PATH.into()), &output_quill)?;
+                        let mut source_syids = source_catalog.stories.iter()
+                            .map(|story| story.syid.0).collect::<Vec<_>>();
+                        let mut output_syids = output_catalog.stories.iter()
+                            .map(|story| story.syid.0).collect::<Vec<_>>();
+                        source_syids.sort_unstable();
+                        output_syids.sort_unstable();
+                        if source_syids != output_syids
+                            || source_syids.windows(2).any(|pair| pair[0] == pair[1])
+                            || reopened.graph().stories.len() != baseline_stories.len() {
+                            return Ok(false);
+                        }
+                        let mut matched_source_graph = 0;
+                        let mut found_target = false;
+                        for entry in &source_catalog.stories {
+                            let source_id = pub_reader::derive_pub_story_id(
+                                &source_hash, entry.syid.0)?;
+                            let output_id = pub_reader::derive_pub_story_id(
+                                &candidate.output_hash, entry.syid.0)?;
+                            let Some(original) = baseline_stories.get(&source_id) else { continue };
+                            matched_source_graph += 1;
+                            if source_id == id {
+                                found_target = output_id == candidate.output_story_id;
+                            } else if !reopened.graph().stories.get(&output_id)
+                                .is_some_and(|next| next.text == original.text) {
+                                return Ok(false);
+                            }
+                        }
+                        Ok(found_target && matched_source_graph == baseline_stories.len())
+                    })();
+                    let (outcome, verified) = match syid_preservation {
+                        Ok(true) => ("HOSTED_PASS", true),
+                        Ok(false) => ("SYID_OR_UNRELATED_STORY_MISMATCH", false),
+                        Err(_) => ("SYID_VERIFICATION_UNAVAILABLE", false),
+                    };
+                    attempt["result"] = json!(outcome);
                     attempt["output_sha256"] = receipt["output_sha256"].clone();
                     attempt["candidate_bytes"] = receipt["output_byte_len"].clone();
                     attempt["project_replay_byte_equal"] = receipt["editor_project_replay_byte_equal"].clone();
-                    attempt["other_story_text_and_identity_preserved"] = json!(all_other_stories_preserved);
+                    attempt["quill_syid_and_other_story_text_preserved"] = json!(verified);
                 }
                 Err(error) => {
                     let reason = error.to_string();
