@@ -272,9 +272,9 @@
       "area": "QUILL",
       "type": "DIAG",
       "task_id": "PUB-T-969",
-      "state": "running",
+      "state": "completed",
       "task_notion": "https://app.notion.com/p/3f532a84beec819ab619d2a86420f2b4",
-      "evidence_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec8151b49cc5b778ba3003",
       "code_path": "experiments/quill/diag/pub-t-969",
       "git_ref": "sk1/quill-diag-pub-t-969"
     }
