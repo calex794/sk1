@@ -65,10 +65,13 @@ def source_url_valid(url: str, host: str) -> bool:
             u.username or u.password or u.query or u.fragment or
             u.port not in (None,443) or not u.path.lower().endswith(".pub")):
             return False
-        ipaddress.ip_address(host)
+    except ValueError:
         return False
+    try:
+        ipaddress.ip_address(host)
     except ValueError:
         return True
+    return False
 
 class GuardedRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):

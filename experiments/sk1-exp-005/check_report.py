@@ -22,6 +22,7 @@ REASONS={"NOT_STARTED","HTTP_UNAVAILABLE","REQUEST_TIMEOUT","FETCH_ERROR",
          "UNSAFE_REDIRECT","SHA_OR_SIZE_DRIFT","NON_CFB_INPUT","OK"}
 RECORD_BASE={"source_sha256","host","expected_source_bytes","status","reason",
              "static_outcome","writer_outcome","second_pairs"}
+WRITE_META={"eligible_story_attempts"}
 STATIC={"tail2_nonzero_count","gap_before_anchor_bytes",
         "descriptor_payload_overlaps_tail2","predicted_plus_one_gate"}
 PAIRS={"story_ordinal","offset_utf16","delete_result","insert_result"}
@@ -57,7 +58,9 @@ def check(fname):
     byhost=defaultdict(Counter)
     witnesses=[]
     for r in records:
-        assert RECORD_BASE<=set(r)<=RECORD_BASE|STATIC
+        assert RECORD_BASE<=set(r)<=RECORD_BASE|STATIC|WRITE_META
+        if "eligible_story_attempts" in r:
+            assert isinstance(r["eligible_story_attempts"],int) and 0<=r["eligible_story_attempts"]<=3
         assert SHA.fullmatch(r["source_sha256"])
         assert r["host"] in HOSTS
         hosts[r["host"]]+=1
@@ -77,7 +80,7 @@ def check(fname):
         assert r["reason"]=="OK"
         diag["source_verified"]+=1
         if r["static_outcome"]=="INSPECTED":
-            assert set(r)==RECORD_BASE|STATIC
+            assert set(r) in (RECORD_BASE|STATIC,RECORD_BASE|STATIC|WRITE_META)
             assert r["predicted_plus_one_gate"] in PRED
             assert all(isinstance(r[k],int) and r[k]>=0 for k in (
                 "tail2_nonzero_count","gap_before_anchor_bytes","descriptor_payload_overlaps_tail2"))
@@ -91,8 +94,14 @@ def check(fname):
             continue
         if r["writer_outcome"]!="EVALUATED":
             assert not r["second_pairs"]
+            if r["writer_outcome"] in ("NO_PLAIN_EDITABLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED"):
+                assert "eligible_story_attempts" in r
+            elif r["writer_outcome"]=="WRITER_PROBE_FAILED":
+                assert "eligible_story_attempts" not in r
             diag["writer_"+r["writer_outcome"]]+=1
             continue
+        assert "eligible_story_attempts" in r
+        assert len(r["second_pairs"])<=r["eligible_story_attempts"]
         diag["writer_evaluated"]+=1
         seen_offsets=set()
         obs=set()
