@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 HERE=Path(__file__).resolve().parent
-BASE=HERE.parents[3]
+BASE=HERE.parents[2]
 ORIGINAL=BASE/"sk1-exp-001"/"run.py"
 SPEC=importlib.util.spec_from_file_location("sk1_exp001_original_safe_intake",ORIGINAL)
 assert SPEC and SPEC.loader
