@@ -35,7 +35,7 @@ fn probe(source: &[u8], sha: &str, ordinal: usize, expected_units: usize,
     let catalog = parse_confirmed_story_catalog(
         pub_core::StreamPath(pub_reader::QUILL_STREAM_PATH.to_owned()), &quill)?;
     let mut matches = catalog.stories.iter().filter(|slice| {
-        pub_reader::derive_pub_story_id(&source_hash, slice.syid)
+        pub_reader::derive_pub_story_id(&source_hash, slice.syid.0)
             .is_ok_and(|id| id == *story_id)
     });
     let target = matches.next().context("Story has no SYID source mapping")?;
