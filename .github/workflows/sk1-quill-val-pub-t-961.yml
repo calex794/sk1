@@ -1,0 +1,62 @@
+name: SK1 QUILL VAL PUB-T-961 Unicode BMP glyph byte-locality
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/val/pub-t-961/**'
+      - '.github/workflows/sk1-quill-val-pub-t-961.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-961
+  cancel-in-progress: true
+
+jobs:
+  unicode-glyph-byte-locality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Verify task identity and compile isolated glyph experiment on pinned Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          cp experiments/quill/val/pub-t-961/unicode_glyph_compare.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_961_unicode.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_961_unicode
+      - name: Compare 77 ASCII controls against 385 Unicode Writer attempts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/val/pub-t-961/run.py \
+            --rar2 source-rar2 --output results-pub-t-961
+          python3 experiments/quill/val/pub-t-961/check_report.py \
+            results-pub-t-961
+      - name: Upload independently verified safe scalar receipts only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-961-unicode-source-safe
+          path: |
+            results-pub-t-961/plan.json
+            results-pub-t-961/records.json
+            results-pub-t-961/report.json
+          retention-days: 30
+          if-no-files-found: error
