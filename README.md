@@ -4,6 +4,12 @@ Independent, disposable **compute workspace** for long-running bounded Chaptera/
 
 Canonical product: [Lalalalendia/rar2](https://github.com/Lalalalendia/rar2). Evidence journal: [SK1 — склад экспериментов](https://app.notion.com/p/3f532a84beec81ad898de243b3b27c80).
 
+## Multi-agent coordination — enforced repository metadata
+
+**Read [AGENTS.md](AGENTS.md) before working.** Task IDs now derive from **Notion Research Tasks**, not the next `SK1-EXP` number: `SK1-{AREA}-{TYPE}-{PUB-T-NNN}`. The canonical [experiment identity registry](experiments/registry.json) lists 5 completed legacy studies, one completed CFB study in a separate branch, and three `Parked` tasks.
+
+[Registry validator](scripts/verify_registry.py) and [GitHub Actions collision check](.github/workflows/sk1-registry-gate.yml) reject duplicate task IDs, unregistered executable experiment folders, and code under Parked tasks. [Verified Actions run #38081749951](https://github.com/calex794/sk1/actions/runs/38081749951). **Notion still owns the actual GO, assignee and lease; the CI check does not grant permission to run a task.**
+
 ## Operating contract
 - One experiment has a precise question, immutable baseline/source identities, admission limits, controls, exact executable receipt and conclusion.
 - Reuse upstream code and confirmed fixtures; do not implement a second Reader/Writer/Editor.
