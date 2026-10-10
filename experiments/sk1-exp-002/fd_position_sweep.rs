@@ -188,14 +188,14 @@ fn probe(source: &[u8], expected_sha: &str, max_stories: usize) -> Result<Value>
                         }
                         Ok(found_target && matched == baseline_stories.len())
                     })();
-                    let status = match verified {
-                        Ok(true) => "HOSTED_PASS",
-                        Ok(false) => "SYID_OR_UNRELATED_STORY_MISMATCH",
-                        Err(_) => "SYID_VERIFICATION_UNAVAILABLE",
+                    let (status, syid_verified) = match verified {
+                        Ok(true) => ("HOSTED_PASS", true),
+                        Ok(false) => ("SYID_OR_UNRELATED_STORY_MISMATCH", false),
+                        Err(_) => ("SYID_VERIFICATION_UNAVAILABLE", false),
                     };
                     item["result"] = json!(status);
                     item["replay_byte_equal"] = receipt["editor_project_replay_byte_equal"].clone();
-                    item["quill_syid_siblings_preserved"] = json!(matches!(verified, Ok(true)));
+                    item["quill_syid_siblings_preserved"] = json!(syid_verified);
                     item["candidate_sha256"] = receipt["output_sha256"].clone();
                 }
                 Err(error) => {
