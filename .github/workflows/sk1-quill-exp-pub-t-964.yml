@@ -1,0 +1,62 @@
+name: SK1 QUILL EXP PUB-T-964 mixed-sign cross-Story Writer commutation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-964/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-964.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-964
+  cancel-in-progress: true
+
+jobs:
+  mixed-story-order-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Verify official registry and compile example linked against pinned Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          cp experiments/quill/exp/pub-t-964/cross_story_mixed.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_964_cross_story_mixed.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_964_cross_story_mixed
+      - name: Perform 62 registered mixed-sign assignments in both Writer orders
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-964/run.py \
+            --rar2 source-rar2 --out results-pub-t-964
+          python3 experiments/quill/exp/pub-t-964/check_report.py \
+            results-pub-t-964
+      - name: Upload only verified source-safe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-964-mixed-cross-story-source-safe
+          path: |
+            results-pub-t-964/plan.json
+            results-pub-t-964/records.json
+            results-pub-t-964/report.json
+          retention-days: 30
+          if-no-files-found: error
