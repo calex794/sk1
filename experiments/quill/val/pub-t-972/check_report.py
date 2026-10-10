@@ -11,8 +11,24 @@ SHA=re.compile(r"^[0-9a-f]{64}$")
 CODE=re.compile(r"^[a-z_]{1,64}$")
 PIN="703808408fd919e564a90cdc236e81db3c04af8b"
 HOST_QUOTAS={
- "www.mathematicshed.com":18,"www.woodside-medical-practice.org.uk":3,
- "www.leonschools.net":3,"www.biblioteki.org":2,"www.liturgyoffice.org.uk":1}
+ "www.mathematicshed.com":7,
+ "www.amherst.ny.us":2,
+ "www.christie.nhs.uk":2,
+ "www.surreyschools.ca":2,
+ "www.includewales.org.uk":2,
+ "fraulocke-grundschultante.de":1,
+ "americassbdc.org":1,
+ "battlelakemn.org":1,
+ "fradragoljevar.com":1,
+ "www.hccfl.edu":1,
+ "nisd.net":1,
+ "www.bluevalleyk12.org":1,
+ "www.ci.king.nc.us":1,
+ "media.svsd.ca":1,
+ "www.novasportingclays.ca":1,
+ "www.liturgyoffice.org.uk":1,
+ "dominiqueetcompagnie.com":1
+}
 EXCLUDED_969_QUOTAS={"www.mathematicshed.com":20,"cmapspublic2.ihmc.us":2,
  "secure1.nbed.nb.ca":2,"fradragoljevar.com":3}
 EXCLUDED_970_QUOTAS={"www.mathematicshed.com":18,
