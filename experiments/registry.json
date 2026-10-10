@@ -1,0 +1,114 @@
+{
+  "schema": "sk1.experiment-registry.v1",
+  "authority": "Notion Research Tasks owns claims and leases; GitHub only mirrors task identities",
+  "records": [
+    {
+      "key": "SK1-EXP-001",
+      "kind": "legacy",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": null,
+      "state": "completed",
+      "task_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81ec9c63e9952fd3e0a3",
+      "code_path": "experiments/sk1-exp-001",
+      "git_ref": "main"
+    },
+    {
+      "key": "SK1-EXP-002",
+      "kind": "legacy",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": null,
+      "state": "completed",
+      "task_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81d6b406fc10231e1310",
+      "code_path": "experiments/sk1-exp-002",
+      "git_ref": "main"
+    },
+    {
+      "key": "SK1-EXP-003",
+      "kind": "legacy",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": null,
+      "state": "completed",
+      "task_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81ec92f9e64a490be67c",
+      "code_path": "experiments/sk1-exp-003",
+      "git_ref": "main"
+    },
+    {
+      "key": "SK1-EXP-004",
+      "kind": "legacy",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": null,
+      "state": "completed",
+      "task_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81fda307fd18807f1117",
+      "code_path": "experiments/sk1-exp-004",
+      "git_ref": "main"
+    },
+    {
+      "key": "SK1-EXP-005",
+      "kind": "legacy",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": null,
+      "state": "completed",
+      "task_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81c2a98ef2d6629a54d9",
+      "code_path": "experiments/sk1-exp-005",
+      "git_ref": "main"
+    },
+    {
+      "key": "SK1-CFB-VAL-PUB-T-952",
+      "kind": "task",
+      "area": "CFB",
+      "type": "VAL",
+      "task_id": "PUB-T-952",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81539c49ce4d308c7011",
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81f5a650d93e1d3f380d",
+      "code_path": "experiments/cfb/val/pub-t-952",
+      "git_ref": "sk1/cfb-val-pub-t-952"
+    },
+    {
+      "key": "SK1-QUILL-EXP-PUB-T-953",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": "PUB-T-953",
+      "state": "parked",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81f7b53ddd902271da33",
+      "evidence_notion": null,
+      "code_path": "experiments/quill/exp/pub-t-953",
+      "git_ref": null
+    },
+    {
+      "key": "SK1-QUILL-DIAG-PUB-T-954",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "DIAG",
+      "task_id": "PUB-T-954",
+      "state": "parked",
+      "task_notion": "https://app.notion.com/p/3f532a84beec819fb606e8a9b61f0bf1",
+      "evidence_notion": null,
+      "code_path": "experiments/quill/diag/pub-t-954",
+      "git_ref": null
+    },
+    {
+      "key": "SK1-VERSIONS-CMP-PUB-T-955",
+      "kind": "task",
+      "area": "VERSIONS",
+      "type": "CMP",
+      "task_id": "PUB-T-955",
+      "state": "parked",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81cea03de5c517c3c8e1",
+      "evidence_notion": null,
+      "code_path": "experiments/versions/cmp/pub-t-955",
+      "git_ref": null
+    }
+  ]
+}
