@@ -1,0 +1,82 @@
+name: SK1 QUILL VAL PUB-T-972 exploratory high-dose growth
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/val/pub-t-972/**'
+      - '.github/workflows/sk1-quill-val-pub-t-972.yml'
+      - 'experiments/registry.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-972
+  cancel-in-progress: true
+
+jobs:
+  external-fd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout isolated SK1
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout fixed original Reader and Writer
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Validate task lease and compile bounded original Writer inspector
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 -m py_compile \
+            experiments/quill/val/pub-t-972/run.py \
+            experiments/quill/val/pub-t-972/check_report.py
+          cp experiments/quill/val/pub-t-972/growth_guard_predictor.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_972_fd.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_972_fd
+      - name: Run 27 source-verified disjoint external PUB inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/val/pub-t-972/run.py \
+            --rar2 source-rar2 --output results-t972-holdout
+          status=$?
+          set -e
+          echo "$status" > science-exit-code.txt
+      - name: Independently reject malformed or unsafe receipts
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/val/pub-t-972/check_report.py results-t972-holdout
+      - name: Upload only verified source-safe receipts
+        if: steps.verify.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-972-fresh-holdout-source-safe
+          path: |
+            results-t972-holdout/plan.json
+            results-t972-holdout/records.json
+            results-t972-holdout/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Ensure sufficient unseen-source data for scientific admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat science-exit-code.txt)" = 0
