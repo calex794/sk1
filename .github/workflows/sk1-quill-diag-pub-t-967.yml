@@ -1,0 +1,64 @@
+name: SK1 QUILL DIAG PUB-T-967 read-only growth envelope predictor
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/diag/pub-t-967/**'
+      - '.github/workflows/sk1-quill-diag-pub-t-967.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-diag-pub-t-967
+  cancel-in-progress: true
+
+jobs:
+  read-only-threshold-prediction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Check unique official Task ID and forbid experimental Writer calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          ! grep -q 'materialize_mature_0x2c_native_pub_candidate\|replace_story_text\|pub_quill::plan_quill_story_text_edit' \
+            experiments/quill/diag/pub-t-967/quill_growth_predictor.rs
+          cp experiments/quill/diag/pub-t-967/quill_growth_predictor.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_967_growth_readonly.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_967_growth_readonly
+      - name: Predict 14 pre-registered T962 thresholds from original Quill geometry only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/diag/pub-t-967/run.py \
+            --rar2 source-rar2 --out results-pub-t-967
+          python3 experiments/quill/diag/pub-t-967/check_report.py \
+            results-pub-t-967
+      - name: Publish only complete source-safe blind prediction JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-967-growth-predictor-source-safe
+          path: |
+            results-pub-t-967/plan.json
+            results-pub-t-967/records.json
+            results-pub-t-967/report.json
+          retention-days: 30
+          if-no-files-found: error
