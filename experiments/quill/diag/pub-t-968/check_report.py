@@ -11,9 +11,8 @@ SHA=re.compile(r"^[0-9a-f]{64}$")
 CODE=re.compile(r"^[a-z_]{1,64}$")
 PIN="703808408fd919e564a90cdc236e81db3c04af8b"
 HOST_QUOTAS={
- "www.mathematicshed.com":14,"storage.googleapis.com":3,
- "cmapspublic2.ihmc.us":5,"www.ci.king.nc.us":3,
- "www.compass.dorset.sch.uk":2}
+ "www.mathematicshed.com":16,"storage.googleapis.com":3,
+ "cmapspublic2.ihmc.us":5,"www.ci.king.nc.us":3}
 SLOTS=("first","second","middle","last")
 SOURCE_STATUS={"EVALUATED","SOURCE_OPEN_BLOCKED","NO_ELIGIBLE_STORY",
  "QUILL_READ_BLOCKED","QUILL_PARSE_BLOCKED","FD_STRUCTURE_BLOCKED",
