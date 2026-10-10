@@ -121,6 +121,30 @@
       "evidence_notion": "https://app.notion.com/p/3f532a84beec81a38881e695939c3a38",
       "code_path": "experiments/quill/exp/pub-t-956",
       "git_ref": "sk1/quill-exp-pub-t-956"
+    },
+    {
+      "key": "SK1-CFB-DIAG-PUB-T-957",
+      "kind": "task",
+      "area": "CFB",
+      "type": "DIAG",
+      "task_id": "PUB-T-957",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81adbc4fe3bed705d7a9",
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec8171919acf2aa8ff1b5f",
+      "code_path": "experiments/cfb/diag/pub-t-957",
+      "git_ref": "sk1/cfb-diag-pub-t-957"
+    },
+    {
+      "key": "SK1-QUILL-DIAG-PUB-T-958",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "DIAG",
+      "task_id": "PUB-T-958",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f532a84beec81de8979ed991021c233",
+      "evidence_notion": "https://app.notion.com/p/3f532a84beec81ea98a4f71b46009882",
+      "code_path": "experiments/quill/diag/pub-t-958",
+      "git_ref": "sk1/quill-diag-pub-t-958"
     }
   ]
 }

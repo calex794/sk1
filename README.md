@@ -6,7 +6,7 @@ Canonical product: [Lalalalendia/rar2](https://github.com/Lalalalendia/rar2). Ev
 
 ## Multi-agent coordination — enforced repository metadata
 
-**Read [AGENTS.md](AGENTS.md) before working.** Task IDs now derive from **Notion Research Tasks**, not the next `SK1-EXP` number: `SK1-{AREA}-{TYPE}-{PUB-T-NNN}`. The canonical [experiment identity registry](experiments/registry.json) lists 5 completed legacy studies, 4 completed classified tasks (PUB-T-952/953/954/956) on independent branches, and 1 `Parked` task (PUB-T-955).
+**Read [AGENTS.md](AGENTS.md) before working.** Task IDs now derive from **Notion Research Tasks**, not the next `SK1-EXP` number: `SK1-{AREA}-{TYPE}-{PUB-T-NNN}`. The canonical [experiment identity registry](experiments/registry.json) lists 5 completed legacy studies, 6 completed task-scoped studies (PUB-T-952/953/954/956/957/958) on independent branches, and 1 `Parked` task (PUB-T-955).
 
 [Registry validator](scripts/verify_registry.py) and [GitHub Actions collision check](.github/workflows/sk1-registry-gate.yml) reject duplicate task IDs, unregistered executable experiment folders, and code under Parked tasks. [Verified Actions run #38081749951](https://github.com/calex794/sk1/actions/runs/38081749951). **Notion still owns the actual GO, assignee and lease; the CI check does not grant permission to run a task.**
 
@@ -41,5 +41,7 @@ These are **historical completed experiments**, not a new queue or a license to 
 | [QUILL-DIAG PUB-T-954](https://app.notion.com/p/3f532a84beec819fb606e8a9b61f0bf1) | Done / Closed | [Actions #38083133702](https://github.com/calex794/sk1/actions/runs/38083133702) | [Notion: 1 TOKN positive + 12 controls; not generalizable](https://app.notion.com/p/3f532a84beec81629035ce5678387e27) |
 | [VERSIONS-CMP PUB-T-955](https://app.notion.com/p/3f532a84beec81cea03de5c517c3c8e1) | **Blocked / Parked** | No run, no claim, no task branch | Await a *material* Writer change in `rar2`; two different Git commit SHAs alone do not justify a replay |
 | [QUILL-EXP PUB-T-956](https://app.notion.com/p/3f532a84beec81519ea3e48383defacd) | Done / Closed | [Actions #38083249275](https://github.com/calex794/sk1/actions/runs/38083249275) | [Notion: inverse operations restore text but not original whole-file SHA](https://app.notion.com/p/3f532a84beec81a38881e695939c3a38) |
+| [CFB-DIAG PUB-T-957](https://app.notion.com/p/3f532a84beec81adbc4fe3bed705d7a9) | Done / Closed | [Actions #38084275375](https://github.com/calex794/sk1/actions/runs/38084275375) | [Notion: all 152 inverse Quill stream differences are SYID first DWORD +2; 1448/1448 other streams preserved](https://app.notion.com/p/3f532a84beec8171919acf2aa8ff1b5f) |
+| [QUILL-DIAG PUB-T-958](https://app.notion.com/p/3f532a84beec81de8979ed991021c233) | Done / Closed | [Actions #38084617775](https://github.com/calex794/sk1/actions/runs/38084617775) | [Notion: FDPC shifted onto inverse insertion position in 2/2 Writer refusals; 75/75 controls; no bypass](https://app.notion.com/p/3f532a84beec81ea98a4f71b46009882) |
 
 **Registry authority:** [Notion Research Tasks](https://app.notion.com/p/1bd5e66edf0d4baf9e303e96265ef10c). The mirrored `experiments/registry.json` is a dated Git snapshot, not a live Notion query. A green GitHub gate does not replace checking task owner/lease and obtaining the operator's explicit GO before any new experiment.
