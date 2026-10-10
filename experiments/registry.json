@@ -92,11 +92,11 @@
       "area": "QUILL",
       "type": "DIAG",
       "task_id": "PUB-T-954",
-      "state": "parked",
+      "state": "claimed",
       "task_notion": "https://app.notion.com/p/3f532a84beec819fb606e8a9b61f0bf1",
       "evidence_notion": null,
       "code_path": "experiments/quill/diag/pub-t-954",
-      "git_ref": null
+      "git_ref": "sk1/quill-diag-pub-t-954"
     },
     {
       "key": "SK1-VERSIONS-CMP-PUB-T-955",
