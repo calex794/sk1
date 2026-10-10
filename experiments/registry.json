@@ -164,7 +164,7 @@
       "area": "CFB",
       "type": "VAL",
       "task_id": "PUB-T-963",
-      "state": "active",
+      "state": "running",
       "task_notion": "https://app.notion.com/p/3f532a84beec8188a69de0e5ba82b601",
       "evidence_notion": null,
       "code_path": "experiments/cfb/val/pub-t-963",
