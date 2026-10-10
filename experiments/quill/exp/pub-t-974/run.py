@@ -15,7 +15,6 @@ PIN="703808408fd919e564a90cdc236e81db3c04af8b"
 LALAMU="f78cc6f455f4dc222868f9cc035511a6ca7a91ea"
 HOST_QUOTAS={
     "www.mathematicshed.com": 7,
-    "www.compass.dorset.sch.uk": 3,
     "www.amherst.ny.us": 2,
     "www.christie.nhs.uk": 2,
     "www.surreyschools.ca": 2,
@@ -29,7 +28,10 @@ HOST_QUOTAS={
     "www.algomapubliclibrary.org": 1,
     "www.hccfl.edu": 1,
     "www.sterlingne.com": 1,
-    "www.bluevalleyk12.org": 1
+    "www.bluevalleyk12.org": 1,
+    "www.novasportingclays.ca": 1,
+    "www.craftonhills.edu": 1,
+    "www.clps.ca": 1
 }
 EXCLUDED_969_QUOTAS={"www.mathematicshed.com":20,
     "cmapspublic2.ihmc.us":2,"secure1.nbed.nb.ca":2,"fradragoljevar.com":3}
