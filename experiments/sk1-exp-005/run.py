@@ -7,6 +7,7 @@ Raw PUB/Story/Quill bytes remain ephemeral and NEVER enter public receipts.
 from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import ipaddress
 import json
@@ -39,6 +40,7 @@ MAX_FILE = 2_500_000
 MAX_TOTAL_PLANNED = 100 * 1024 * 1024
 FETCH_TIMEOUT_SECONDS = 12
 PROBE_TIMEOUT_SECONDS = 150
+MAX_CONCURRENT_SOURCE_REQUESTS = 4
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 ALLOWED_ERROR = {
     "NOT_STARTED", "HTTP_UNAVAILABLE", "REQUEST_TIMEOUT", "FETCH_ERROR",
@@ -313,12 +315,16 @@ def main()->int:
         "host_quotas":QUOTAS,
         "source_sha256":[x["sha256"] for x in rows],
         "byte_budget":MAX_TOTAL_PLANNED,
+        "max_source_concurrency":MAX_CONCURRENT_SOURCE_REQUESTS,
         "scope":"holdout source-level correlation of nonzero 2-byte Quill tail with growth guard",
     },indent=2)+"\n",encoding="utf-8")
     observed=[]
-    for row in rows:
-        observed.append(run_case(row,static_bin,writer_bin))
-        (out/"records.json").write_text(json.dumps(observed,indent=2)+"\n",encoding="utf-8")
+    # Bound HTTPS concurrency. Each case owns its private tempfile and subprocess;
+    # results are yielded in the pre-registered SHA order, preserving the census.
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_SOURCE_REQUESTS) as workers:
+        for record in workers.map(lambda row: run_case(row,static_bin,writer_bin), rows):
+            observed.append(record)
+            (out/"records.json").write_text(json.dumps(observed,indent=2)+"\n",encoding="utf-8")
     stats=summarize(observed)
     report={
         "schema":"sk1.exp005.holdout-report.v1",
