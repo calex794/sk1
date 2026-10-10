@@ -1,0 +1,83 @@
+name: SK1 QUILL EXP PUB-T-966 position-dependent ASCII-growth guard
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-966/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-966.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-966
+  cancel-in-progress: true
+
+jobs:
+  position-growth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 experiment and baseline
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout pinned original rar2 Writer
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install pinned CFB Python inspector
+        run: python3 -m pip install --disable-pip-version-check olefile==0.47
+      - name: Validate task identity and build original Reader and Writer arm
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 -m py_compile \
+            experiments/quill/exp/pub-t-966/run.py \
+            experiments/quill/exp/pub-t-966/check_report.py
+          cp experiments/quill/exp/pub-t-966/position_growth.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_966_positions.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_966_positions
+      - name: Run new first middle last positions on original 14 T962 SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/exp/pub-t-966/run.py \
+            --rar2 source-rar2 --output results-t966
+          status=$?
+          set -e
+          echo "$status" > result-exit-code.txt
+      - name: Reject inconsistent or unsafe receipts
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-966/check_report.py results-t966
+      - name: Upload only verified numeric source-safe JSON
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-966-position-growth-source-safe
+          path: |
+            results-t966/plan.json
+            results-t966/records.json
+            results-t966/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Require scientific admission and zero hidden anomalies
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat result-exit-code.txt)" = 0
