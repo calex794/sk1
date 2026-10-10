@@ -11,15 +11,7 @@ SHA=re.compile(r"^[0-9a-f]{64}$")
 CODE=re.compile(r"^[a-z_]{1,64}$")
 PIN="703808408fd919e564a90cdc236e81db3c04af8b"
 HOST_QUOTAS={
- "www.mathematicshed.com":18,"www.woodside-medical-practice.org.uk":3,
- "www.leonschools.net":3,"www.biblioteki.org":2,"www.liturgyoffice.org.uk":1}
-EXCLUDED_969_QUOTAS={"www.mathematicshed.com":20,"cmapspublic2.ihmc.us":2,
- "secure1.nbed.nb.ca":2,"fradragoljevar.com":3}
-EXCLUDED_968_QUOTAS={"www.mathematicshed.com":16,"storage.googleapis.com":3,
- "cmapspublic2.ihmc.us":5,"www.ci.king.nc.us":3}
-EXCLUDED_970_QUOTAS={
     "www.mathematicshed.com": 7,
-    "www.compass.dorset.sch.uk": 3,
     "www.amherst.ny.us": 2,
     "www.christie.nhs.uk": 2,
     "www.surreyschools.ca": 2,
@@ -33,7 +25,10 @@ EXCLUDED_970_QUOTAS={
     "www.algomapubliclibrary.org": 1,
     "www.hccfl.edu": 1,
     "www.sterlingne.com": 1,
-    "www.bluevalleyk12.org": 1
+    "www.bluevalleyk12.org": 1,
+    "www.novasportingclays.ca": 1,
+    "www.craftonhills.edu": 1,
+    "www.clps.ca": 1
 }
 SLOTS=("first","second","middle","last")
 SOURCE_STATUS={"EVALUATED","SOURCE_OPEN_BLOCKED","NO_ELIGIBLE_STORY",
