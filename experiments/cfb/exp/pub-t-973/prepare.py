@@ -81,6 +81,9 @@ def main():
         else:
             data=exactly_once(data,'assert len(row["variants"])==9',
                               'assert len(row["variants"])==6',"independent validator")
+            data=exactly_once(data,'p["synthetic_variants_per_real_source"]==9',
+                              'p["synthetic_variants_per_real_source"]==6',
+                              "independent validator plan count")
             data=data.replace("3 SHA, 27 synthetic planned","3 SHA, 18 synthetic planned")
         # Different scientific identity and a bounded, explicitly pinned predecessor.
         if "965" not in data:
