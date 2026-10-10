@@ -1,0 +1,73 @@
+name: SK1 QUILL EXP PUB-T-953 ordered two-step deletion
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-953/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-953.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-953
+  cancel-in-progress: true
+
+jobs:
+  sequential-order:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Compile isolated sequential probe and calibrate original Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          cp experiments/quill/exp/pub-t-953/sequential.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_quill_exp_pub_t_953.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_quill_exp_pub_t_953
+          mkdir -p quill-t953-results
+          cargo run --quiet --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example cross_fixture_story_probe -- \
+            quill-t953-results/old-calibration.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('quill-t953-results/old-calibration.json').read_text())
+          assert p['positive_control']['receipt']['output_sha256'] == \
+            'b9b789f35a34e016faceb27acf50bf0621273a7d612762ecc17c56ca450fe715'
+          assert p['positive_control']['receipt']['editor_project_replay_byte_equal']
+          PY
+      - name: Run 24 pre-registered SHA-pinned independent and sequential controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-953/run.py \
+            --rar2 source-rar2 --output quill-t953-results
+          python3 experiments/quill/exp/pub-t-953/check_report.py quill-t953-results
+      - name: Publish only complete and validated source-safe research receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-quill-exp-pub-t-953-source-safe
+          path: |
+            quill-t953-results/plan.json
+            quill-t953-results/records.json
+            quill-t953-results/report.json
+          retention-days: 30
+          if-no-files-found: error
