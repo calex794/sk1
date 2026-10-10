@@ -9,3 +9,5 @@ Baseline/admission and exact pinned Writer are inherited from verified T957; 26 
 Track same-length byte mismatches, trailing byte count, and exact conjunction of single SYID change and whole-file mismatch. Negative outliers remain in source-safe JSON. Neither synthetic mock Writer nor product/native validation; rar2 untouched.
 
 Run branch workflow sk1-cfb-val-pub-t-963.yml. Each final report is independently checked. Original PUB and raw Quill/text never appear in public artifacts. Scientific result is NOT_EVALUATED until successful execution and independent audit.
+
+Validation gate registration is active at branch HEAD (state: running).
