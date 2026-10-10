@@ -1,0 +1,63 @@
+name: SK1 QUILL EXP PUB-T-956 inverse Writer composition
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-956/**'
+      - 'experiments/registry.json'
+      - '.github/workflows/sk1-quill-exp-pub-t-956.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-956
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Guard task identity and build experimental oracle from immutable Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          cp experiments/quill/exp/pub-t-956/inverse.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_956_inverse.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_956_inverse
+      - name: Execute independently reversible +1 and -1 exact Writer/Reader cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-956/run.py \
+            --rar2 source-rar2 --output results-pub-t-956
+          python3 experiments/quill/exp/pub-t-956/check_report.py \
+            results-pub-t-956/report.json
+      - name: Upload only completed source-safe validated evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-956-inverse-verified
+          path: |
+            results-pub-t-956/plan.json
+            results-pub-t-956/records.json
+            results-pub-t-956/report.json
+          retention-days: 30
+          if-no-files-found: error
