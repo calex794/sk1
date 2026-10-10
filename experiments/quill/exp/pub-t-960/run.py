@@ -35,7 +35,7 @@ SOURCE_SHA256 = (
     "a7679f3ae2a14760d17e1c50f13912266369aecac52f953983923766fe100ebf",
     "1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e",
 )
-EXPECTED_STORY_ORDINAL_COUNTS = {sha:(2 if sha == SOURCE_SHA256[-1] else 3) for sha in SOURCE_SHA256}
+EXPECTED_PASS_COUNTS = {sha:(2 if sha == SOURCE_SHA256[-1] else 3) for sha in SOURCE_SHA256}
 EXPECTED_PAIRS = 31
 EXPECTED_CHAINS = 62
 BINARY_NAME = "sk1_pub_t_960_cross_story"
@@ -110,13 +110,21 @@ def summarize(rows: list[dict]) -> dict:
     final_semantics=Counter()
     witnesses=[]
     selected_story_total=0
+    attempted_story_total=0
+    excluded_story_results=Counter()
     pairs_count=0
     for src in rows:
         source_status[src["status"]]+=1
         if src["status"]!="EVALUATED":
             continue
         controls=src.get("single_controls",[])
-        selected_story_total+=len(controls)
+        attempted_story_total+=len(controls)
+        for control in controls:
+            if control["single_delete"]["status"]=="HOSTED_PASS":
+                selected_story_total+=1
+            else:
+                result=control["single_delete"]
+                excluded_story_results[result.get("writer_code",result["status"])]+=1
         for pair in src.get("pairs",[]):
             pairs_count+=1
             ab=pair["a_then_b_second"]["status"]
@@ -152,6 +160,8 @@ def summarize(rows: list[dict]) -> dict:
         "predeclared_sources":len(rows),
         "source_status":dict(sorted(source_status.items())),
         "single_story_controls":selected_story_total,
+        "attempted_single_story_controls":attempted_story_total,
+        "excluded_single_story_results":dict(sorted(excluded_story_results.items())),
         "cross_story_pairs":pairs_count,
         "ordered_chains":2*pairs_count,
         "A_then_B_second_outcomes":dict(sorted(outcome_a_then_b.items())),
@@ -182,6 +192,8 @@ def main() -> int:
         "sample_origin":"11 SHA with at least two independently successful second-slot delete controls in PUB-T-956",
         "source_sha256":list(SOURCE_SHA256),
         "expected_story_controls":32,
+        "expected_attempted_story_controls":33,
+        "expected_excluded_tokn_story_controls":1,
         "expected_cross_story_pairs":EXPECTED_PAIRS,
         "expected_ordered_chains":EXPECTED_CHAINS,
         "unit_of_independence":"source_sha256, not Story/ordered chain",
@@ -206,11 +218,13 @@ def main() -> int:
     accepted=(
         aggregate["source_status"].get("EVALUATED",0)==11
         and all(row.get("reason")=="EVALUATED" for row in records)
-        and all(row.get("eligible_story_count")==EXPECTED_STORY_ORDINAL_COUNTS[row["source_sha256"]]
+        and all(row.get("eligible_story_count")==3 for row in records)
+        and all(sum(c["single_delete"]["status"]=="HOSTED_PASS" for c in
+                    row.get("single_controls",[]))==EXPECTED_PASS_COUNTS[row["source_sha256"]]
                 for row in records)
-        and all(c["single_delete"]["status"]=="HOSTED_PASS" for row in records
-                for c in row.get("single_controls",[]))
+        and aggregate["attempted_single_story_controls"]==33
         and aggregate["single_story_controls"]==32
+        and aggregate["excluded_single_story_results"]=={"quill_token_layer":1}
         and aggregate["cross_story_pairs"]==31
         and aggregate["ordered_chains"]==62
         and len(aggregate["A_then_B_second_outcomes"])>0

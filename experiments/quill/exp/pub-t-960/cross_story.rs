@@ -246,13 +246,21 @@ fn inspect_source(source:&[u8], expected_sha:&str)->Result<Value> {
         "offset_utf16":c.offset_utf16,
         "single_delete":c.single.receipt.clone()
     })).collect::<Vec<_>>());
-    if controls.iter().any(|c|c.single.receipt["status"]!="HOSTED_PASS"){
-        receipt["result"]=json!("BASELINE_SINGLE_DRIFT");
+    // The predeclared 11th PUB has a TOKN-protected third Story.
+    // It is a legitimate negative single control, NOT a third candidate for
+    // a pair whose both independent single deletes succeeded in PUB-T-956.
+    let permitted=controls.iter().enumerate()
+        .filter(|(_,c)|c.single.receipt["status"]=="HOSTED_PASS")
+        .map(|(i,_)|i).collect::<Vec<_>>();
+    if permitted.len()<2{
+        receipt["result"]=json!("INSUFFICIENT_ACCEPTED_SINGLE_CONTROLS");
         return Ok(receipt);
     }
     let mut rows=Vec::new();
-    for ai in 0..controls.len(){
-        for bi in ai+1..controls.len(){
+    for ia in 0..permitted.len(){
+        for ib in ia+1..permitted.len(){
+            let ai=permitted[ia];
+            let bi=permitted[ib];
             let a=&controls[ai];
             let b=&controls[bi];
             let ab=step(a.single.bytes.as_deref().context("missing A single")?,

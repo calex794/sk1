@@ -14,7 +14,7 @@ If deletions on two different Quill Stories independently pass existing Writer/R
 
 ## Preregistered prior-evidence sample
 
-The independent source-safe archive from [PUB-T-956](https://github.com/calex794/sk1/actions/runs/38083249275/artifacts/11680967998) was parsed before this task. It contains **11 source SHA** where ≥2 distinct Stories have a `HOSTED_PASS` standalone deletion in the `second` slot. Ten of these sources have 3 eligible Stories, one has 2: thus **32 Story controls, 31 distinct inter-Story pairs, 62 ordered two-step chains**. Every pair is same-source but uses different Story SYID. Reuses original [EXP-001 allowlisted source intake](../../../sk1-exp-001/) and immutable `rar2@703808408fd919e564a90cdc236e81db3c04af8b`.
+The independent source-safe archive from [PUB-T-956](https://github.com/calex794/sk1/actions/runs/38083249275/artifacts/11680967998) was parsed before this task. It contains **11 source SHA** where ≥2 distinct Stories have a `HOSTED_PASS` standalone deletion in the `second` slot. All 11 files have 3 Editor-eligible Stories (33 tested). Ten have **3 individually successful** deletions; the eleventh has **2 successful** deletions plus **one explicitly excluded `quill_token_layer`** control. Thus exactly **32 accepted Story controls, 31 distinct inter-Story pairs, 62 ordered two-step chains**. Every pair is same-source but uses different Story SYID. Reuses original [EXP-001 allowlisted source intake](../../../sk1-exp-001/) and immutable `rar2@703808408fd919e564a90cdc236e81db3c04af8b`.
 
 **These are not 11 new independent PUB**: all sources were in the original corpus and preselected via prior Writer outcomes. Primary source-level denominator = 11 SHA; 31 pairs and 62 order arms are correlated secondary units. No statistical confidence interval justified by 62 "independent" documents.
 
@@ -36,3 +36,9 @@ The independent source-safe archive from [PUB-T-956](https://github.com/calex794
 ## Reporting
 
 [GitHub Actions workflow](https://github.com/calex794/sk1/actions/workflows/sk1-quill-exp-pub-t-960.yml) builds the read-only experimental oracle on exactly the pinned upstream SHA. The task's permanent result (positive or negative) belongs in [Notion PUB-T-960](https://app.notion.com/p/3f532a84beec812b99a1ccfca4c76c4a), not just the expiring CI ZIP. No Writer patch to rar2 without its owner's decision.
+
+## Failed first admission run — repaired without changing source sample
+
+[Actions #38086016342](https://github.com/calex794/sk1/actions/runs/38086016342) did build and execute the 11 sources; the runner **correctly failed closed** (exit 2) before the source-safe validator/artifact because its initial census assumed all **33** Editor-eligible Stories were individually writable. The single blocked Story is the already documented TOKN Story ordinal 2 in SHA `1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e`. Thirty preliminary cross-Story pairs produced 60 successful two-step chains and 30 byte-equal final pairs, **but they are not an accepted proof** because the one remaining predeclared valid pair was excluded by the faulty admission code.
+
+The corrected census **tests and records all 33 single controls**, explicitly excludes the one known TOKN failure from *pair selection*, and requires the same fixed **11 SHA/32 PASS/31 pairs/62 orders**. This changes no source list, pair identities, Writer algorithm, or acceptance of a denied TOKN Story. New run requires full revalidation before scientific conclusion.

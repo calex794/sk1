@@ -59,6 +59,7 @@ def check(path:Path):
     plan=json.loads((path.parent/"plan.json").read_text(encoding="utf-8"))
     assert set(plan)=={"schema","rar2_pin","source_manifest","prior_evidence",
                       "sample_origin","source_sha256","expected_story_controls",
+                      "expected_attempted_story_controls","expected_excluded_tokn_story_controls",
                       "expected_cross_story_pairs","expected_ordered_chains",
                       "unit_of_independence","native_publisher_acceptance"}
     assert plan["schema"]=="sk1.pub-t-960.plan.v1"
@@ -66,6 +67,8 @@ def check(path:Path):
     assert plan["source_manifest"]==runner.source.MANIFEST_URL
     assert plan["source_sha256"]==list(runner.SOURCE_SHA256)
     assert plan["expected_story_controls"]==32
+    assert plan["expected_attempted_story_controls"]==33
+    assert plan["expected_excluded_tokn_story_controls"]==1
     assert plan["expected_cross_story_pairs"]==31
     assert plan["expected_ordered_chains"]==62
     assert plan["native_publisher_acceptance"]=="NOT_EVALUATED"
@@ -74,7 +77,8 @@ def check(path:Path):
     records=x["records"]
     assert isinstance(records,list) and len(records)==11
     assert [r["source_sha256"] for r in records]==list(runner.SOURCE_SHA256)
-    n_pairs=n_controls=0
+    n_pairs=n_controls=n_attempted=0
+    excluded_tokn=0
     for source in records:
         assert set(source)==SOURCE_FULL
         assert SHA.fullmatch(source["source_sha256"])
@@ -83,11 +87,12 @@ def check(path:Path):
         assert source["status"]=="EVALUATED"
         assert source["reason"]=="EVALUATED"
         controls=source["single_controls"]
-        expected_count=runner.EXPECTED_STORY_ORDINAL_COUNTS[source["source_sha256"]]
-        assert source["eligible_story_count"]==expected_count
-        assert isinstance(controls,list) and len(controls)==expected_count
-        n_controls+=len(controls)
+        expected_accepted=runner.EXPECTED_PASS_COUNTS[source["source_sha256"]]
+        assert source["eligible_story_count"]==3
+        assert isinstance(controls,list) and len(controls)==3
+        n_attempted+=len(controls)
         seen_syids=set()
+        accepted_indices=[]
         for ordinal,c in enumerate(controls):
             assert set(c)==CONTROL
             assert c["story_ordinal"]==ordinal
@@ -96,17 +101,26 @@ def check(path:Path):
             seen_syids.add(c["syid"])
             assert type(c["offset_utf16"]) is int and c["offset_utf16"]>=0
             require_step(c["single_delete"])
-            assert c["single_delete"]["status"]=="HOSTED_PASS"
-
+            if c["single_delete"]["status"]=="HOSTED_PASS":
+                accepted_indices.append(ordinal)
+                n_controls+=1
+            else:
+                assert source["source_sha256"]==runner.SOURCE_SHA256[-1]
+                assert ordinal==2
+                assert c["single_delete"]=={
+                    "status":"WRITER_BLOCKED","writer_code":"quill_token_layer"}
+                excluded_tokn+=1
+        assert len(accepted_indices)==expected_accepted
         pairs=source["pairs"]
-        expected_pairs=expected_count*(expected_count-1)//2
+        expected_pairs=expected_accepted*(expected_accepted-1)//2
         assert isinstance(pairs,list) and len(pairs)==expected_pairs
         n_pairs+=len(pairs)
         encountered=set()
         for pair in pairs:
             assert set(pair)==PAIR
             a,b=pair["a_story_ordinal"],pair["b_story_ordinal"]
-            assert type(a) is int and type(b) is int and 0<=a<b<expected_count
+            assert type(a) is int and type(b) is int and 0<=a<b<3
+            assert a in accepted_indices and b in accepted_indices
             assert (a,b) not in encountered
             encountered.add((a,b))
             assert pair["a_syid"]==controls[a]["syid"]
@@ -126,9 +140,11 @@ def check(path:Path):
                 assert type(pair["both_final_byte_equal"]) is bool
             else:
                 assert pair["both_final_byte_equal"] is None
-        assert len(encountered)==expected_pairs
-
+        assert encountered=={(a,b) for i,a in enumerate(accepted_indices)
+                            for b in accepted_indices[i+1:]}
+    assert n_attempted==33
     assert n_controls==32
+    assert excluded_tokn==1
     assert n_pairs==31
     computed=runner.summarize(records)
     assert x["summary"]==computed
@@ -137,7 +153,7 @@ def check(path:Path):
     assert computed["ordered_chains"]==62
     assert sum(computed["A_then_B_second_outcomes"].values())==31
     assert sum(computed["B_then_A_second_outcomes"].values())==31
-    print("PUB-T-960: 11 public SHA / 32 distinct Story controls / 31 cross-Story pairs / 62 validated chain observations PASS")
+    print("PUB-T-960: 11 public SHA / 33 candidate Story (32 passing, 1 TOKN-blocked) / 31 cross-Story pairs / 62 validated chains PASS")
 
 if __name__=="__main__":
     assert len(sys.argv)==2
