@@ -1,0 +1,17 @@
+# SK1-QUILL-DIAG-PUB-T-954. Verified EXP-002 source-safe run 38077356809, artifact 11678607165.
+# EXP-002 ZIP SHA256 651cb720c17ee9c42330173513c077b88b01a3176f580343e841d6a0498cc273.
+# Pre-registered 1 positive (TOKN on all 5 unique offsets), 2 controls from same PUB, and 10 matched controls from 10 different PUB.
+# Source SHA | eligible Story ordinal (EXP-002) | UTF16 length | ASCII count | EXP-002 label | sampling stratum.
+1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e|0|6|5|NON_TOKN_PASS|same_source_control
+1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e|1|17|13|NON_TOKN_PASS|same_source_control
+1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e|2|6|5|TOKN_BLOCKED|positive
+c19fb45f346d671fa9746a1ac6e5fa083a72b184adfa617a565d8e14b4151ebd|2|6|5|NON_TOKN_PASS|matched_control
+03abbe9703be14805df1bde2fdf30688a5971153134d16b428d1943022a15178|2|6|5|NON_TOKN_PASS|matched_control
+d2239f6c60f2a7520c02f01e37ad5899873366e4481fc6a1952d58f074d508b1|2|6|5|NON_TOKN_PASS|matched_control
+9271c1e5e57fa885d953a9d4cee5a4ccb5e10ac9a93c0a5aa7027683b6cece77|2|6|5|NON_TOKN_PASS|matched_control
+fa901f49124264ab5cca37ec98deb07ef83b13ffc91666af719cce0c0f73f186|2|6|5|NON_TOKN_PASS|matched_control
+f2990235617259921c959ddff24dc30ca438ed44dc0126b57e6943fa4b6e7dcc|2|6|5|NON_TOKN_PASS|matched_control
+1a6e4aa289ff277267be9db81763ccc859da4288aed31c6de85ee7f77fdee41a|2|6|5|NON_TOKN_PASS|matched_control
+c13eb49efa38041a767d326cd231160457c4c13c3bf252c6dc167cd57f07b4bb|2|6|5|NON_TOKN_PASS|matched_control
+16ea75ba3cba286af382619a9edc2d7940d3e4f74a83577520b470c9fbc2852d|2|6|5|NON_TOKN_PASS|matched_control
+a7679f3ae2a14760d17e1c50f13912266369aecac52f953983923766fe100ebf|1|6|5|NON_TOKN_PASS|matched_control
