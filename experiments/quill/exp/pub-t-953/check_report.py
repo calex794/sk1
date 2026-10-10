@@ -73,7 +73,14 @@ def check(folder):
     assert report["product_pub_download_authorized"] is False
     assert rows==report["records"] and len(rows)==24
     ab=Counter();ba=Counter();cnt=Counter();sensitive=[];sources=set()
-    for w,row in zip(witnesses,rows):
+    by_identity={(w["source_sha256"],w["story_ordinal"]):w for w in witnesses}
+    assert len(by_identity)==24
+    observed=set()
+    for row in rows:
+        identity=(row["source_sha256"],row["story_ordinal"])
+        assert identity in by_identity and identity not in observed
+        observed.add(identity)
+        w=by_identity[identity]
         exact(row,{"source_sha256","source_type","source_bytes","story_ordinal",
             "status","reason","record"})
         assert row["status"]=="EVALUATED" and row["reason"]=="OBSERVED"
@@ -117,6 +124,7 @@ def check(folder):
                 "a_offset_utf16":a,"b_offset_utf16":b,
                 "ab_second":p["ab_second"],"ba_second":p["ba_second"]})
         sources.add(row["source_sha256"])
+    assert observed==set(by_identity)
     q=report["summary"]
     exact(q,{"sources_selected","sources_evaluated","pairs_selected","pairs_evaluated",
         "pairs_not_evaluated","baseline_pairs_verified","baseline_drift",
