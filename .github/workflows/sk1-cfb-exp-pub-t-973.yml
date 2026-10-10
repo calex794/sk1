@@ -1,0 +1,95 @@
+name: SK1 CFB EXP PUB-T-973 four-byte SYID carry
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/exp/pub-t-973/**'
+      - '.github/workflows/sk1-cfb-exp-pub-t-973.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-cfb-exp-pub-t-973
+  cancel-in-progress: true
+
+jobs:
+  four-byte-syid-carry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated registered SK1 experiment
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout frozen previous scientific experiment
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 72f3c823186ec0e47d5c398f7e1118a7ba4814bb
+          path: reference-965
+          persist-credentials: false
+
+      - name: Checkout immutable existing Writer and Reader
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+
+      - name: Verify both pins, registry and strict generated new test matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C reference-965 rev-parse HEAD)" = 72f3c823186ec0e47d5c398f7e1118a7ba4814bb
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 experiments/cfb/exp/pub-t-973/prepare.py --reference reference-965
+          cp experiments/cfb/exp/pub-t-973/carry_probe.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_973_syid_carry.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_973_syid_carry
+
+      - name: Execute all 18 synthetic inputs and 36 real Writer arm checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/cfb/exp/pub-t-973/run.py \
+            --rar2 source-rar2 --output results-pub-t-973
+          status=$?
+          set -e
+          echo "$status" > result-exit-code.txt
+
+      - name: Independently validate every result and source-safe JSON schema
+        id: validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/exp/pub-t-973/check_report.py results-pub-t-973
+
+      - name: Upload only three validated source-safe JSON files
+        if: steps.validation.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-973-four-byte-syid-carry-source-safe
+          path: |
+            results-pub-t-973/plan.json
+            results-pub-t-973/records.json
+            results-pub-t-973/report.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Require all predeclared public source admission controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat result-exit-code.txt)" = 0
