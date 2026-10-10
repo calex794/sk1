@@ -146,6 +146,7 @@ def summarize_cfb(records:list[dict])->dict:
                         ("delete_then_insert","delete_insert_cfb")):
         counts=Counter()
         changed_kinds=Counter()
+        syid_deltas=Counter()
         distinct_sources=set()
         examples=[]
         for source_row in records:
@@ -164,6 +165,17 @@ def summarize_cfb(records:list[dict])->dict:
                         counts[k+"_true"]+=int(d[k] is True)
                     counts["non_quill_streams_checked"]+=d["non_quill_streams_checked"]
                     counts["non_quill_streams_changed"]+=d["non_quill_streams_changed"]
+                    syid_deltas[str(d["syid_first_dword_delta"])]+=1
+                    counts["syid_header_dword_changed_cases"]+=int(
+                        d["source_syid_first_dword"]!=d["final_syid_first_dword"])
+                    counts["syid_live_ids_equal_cases"]+=int(d["same_syid_live_ids"])
+                    counts["syid_count_equal_cases"]+=int(d["same_syid_count"])
+                    head=d["syid_first_dword_changed_bytes"]
+                    tail=d["quill_changed_bytes_outside_syid_first_dword"]
+                    counts["syid_header_changed_byte_count"]+=(head or 0)
+                    counts["quill_changed_bytes_outside_syid_header"]+=(tail or 0)
+                    counts["quill_diff_only_syid_first_dword_cases"]+=int(
+                        head is not None and head>0 and tail==0)
                     counts["quill_chunk_payloads_changed"]+=(d["altered_chunk_payload_count"] or 0)
                     counts["quill_descriptor_offset_changes"]+=(d["altered_descriptor_offsets"] or 0)
                     counts["quill_descriptor_length_changes"]+=(d["altered_descriptor_lengths"] or 0)
@@ -192,6 +204,7 @@ def summarize_cfb(records:list[dict])->dict:
             "distinct_source_count":len(distinct_sources),
             "totals":dict(sorted(counts.items())),
             "changed_quill_chunk_kinds":dict(sorted(changed_kinds.items())),
+            "syid_first_dword_delta_histogram":dict(sorted(syid_deltas.items())),
             "unusual_source_safe_witnesses":examples,
         }
     return metrics
