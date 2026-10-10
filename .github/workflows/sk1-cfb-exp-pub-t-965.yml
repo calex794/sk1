@@ -1,0 +1,78 @@
+name: SK1 CFB EXP PUB-T-965 SYID carry and overflow guards
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/exp/pub-t-965/**'
+      - '.github/workflows/sk1-cfb-exp-pub-t-965.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-cfb-exp-pub-t-965
+  cancel-in-progress: true
+
+jobs:
+  syid-carry-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 laboratory
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exact approved existing Writer (no product changes)
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Registry gate and compile pinned original Writer experiment harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          cp experiments/cfb/exp/pub-t-965/carry_probe.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_965_syid_carry.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_965_syid_carry
+      - name: Execute exact 3-SHA by 9-value synthetic header matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/cfb/exp/pub-t-965/run.py \
+            --rar2 source-rar2 --output results-pub-t-965
+          status=$?
+          set -e
+          echo "$status" > run-status.txt
+      - name: Independently reject unverified, altered or unsafe JSON data
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/exp/pub-t-965/check_report.py results-pub-t-965
+      - name: Upload strictly source-safe pre-registered JSON
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-965-syid-carry-safe
+          path: |
+            results-pub-t-965/plan.json
+            results-pub-t-965/records.json
+            results-pub-t-965/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Require all three original SHA controls evaluated
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat run-status.txt)" = 0
