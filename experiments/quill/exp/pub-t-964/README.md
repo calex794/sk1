@@ -1,6 +1,6 @@
 # SK1-QUILL-EXP-PUB-T-964 — mixed-sign cross-Story Writer order
 
-**Canonical Notion task:** [PUB-T-964](https://app.notion.com/p/3f532a84beec8151b9d7ed2beeceefde) · **claim/run:** [PUB-RUN-?](https://app.notion.com/p/3f532a84beec81ddae34e8af62c02189).
+**Canonical Notion task:** [PUB-T-964](https://app.notion.com/p/3f532a84beec8151b9d7ed2beeceefde) · **claim/run:** [PUB-RUN-754](https://app.notion.com/p/3f532a84beec81ddae34e8af62c02189).
 
 ## New discriminator
 
