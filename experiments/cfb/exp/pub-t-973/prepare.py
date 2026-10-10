@@ -87,8 +87,10 @@ def main():
             raise ValueError("parent version marker disappeared in "+name)
         data=data.replace("965","973")
         if name in ("run.py","check_report.py"):
-            data=exactly_once(data,"predecessor_963_zip_sha256",
-                              "predecessor_965_zip_sha256","plan predecessor key")
+            expected_key_occurrences=1 if name=="run.py" else 2
+            if data.count("predecessor_963_zip_sha256")!=expected_key_occurrences:
+                raise ValueError("pinned parent drift: plan predecessor field count")
+            data=data.replace("predecessor_963_zip_sha256","predecessor_965_zip_sha256")
             data=exactly_once(data,ZIP_963,ZIP_965,"predecessor archive identity")
         (generated/name).write_text(data,encoding="utf-8")
     print("PUB-T-973: exact T965 source pinned, six new SYID values, generated source verified")
