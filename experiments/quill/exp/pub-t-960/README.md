@@ -42,3 +42,15 @@ The independent source-safe archive from [PUB-T-956](https://github.com/calex794
 [Actions #38086016342](https://github.com/calex794/sk1/actions/runs/38086016342) did build and execute the 11 sources; the runner **correctly failed closed** (exit 2) before the source-safe validator/artifact because its initial census assumed all **33** Editor-eligible Stories were individually writable. The single blocked Story is the already documented TOKN Story ordinal 2 in SHA `1e7f38b3ce1d0d956815992b15d361c405fc4bbdced5cdabb3c4581327cc183e`. Thirty preliminary cross-Story pairs produced 60 successful two-step chains and 30 byte-equal final pairs, **but they are not an accepted proof** because the one remaining predeclared valid pair was excluded by the faulty admission code.
 
 The corrected census **tests and records all 33 single controls**, explicitly excludes the one known TOKN failure from *pair selection*, and requires the same fixed **11 SHA/32 PASS/31 pairs/62 orders**. This changes no source list, pair identities, Writer algorithm, or acceptance of a denied TOKN Story. New run requires full revalidation before scientific conclusion.
+
+## Verified scientific outcome — CLOSED
+
+[Canonical task PUB-T-960](https://app.notion.com/p/3f532a84beec812b99a1ccfca4c76c4a) · [permanent knowledge](https://app.notion.com/p/3f532a84beec81f880abf641a045b8e5) · [accepted Actions #38086190603](https://github.com/calex794/sk1/actions/runs/38086190603).
+
+Exact science SK1 head `0bd1efc90f1e891e8a07e1bd1c0b673c45328a5c`; unchanged `rar2@703808408fd919e564a90cdc236e81db3c04af8b`. Source-safe [artifact #11682312578](https://github.com/calex794/sk1/actions/runs/38086190603/artifacts/11682312578) ZIP digest `sha256:aaa280bc3c859f149b583fe2d7b1e4eea2a1f0faaaaf584f80fa3e79a2ff3c5b`, independently verified against downloaded ZIP and all three internal JSON files.
+
+**Accepted evidence:** 11/11 SHA-verified public PUB; 33 candidate Story with 32 standalone second-ASCII deletion `HOSTED_PASS` and one excluded `quill_token_layer` control; 31 cross-SYID Story pairs, all **31 AB** and **31 BA** Writer+Reader/SYID/replay and final semantic `HOSTED_PASS`, and **31/31** actual final byte vector equal across order arms. No new negative or noncommuting witness. This is a source-conditioned *serial hosted Writer* result, **not** a guarantee of product multi-Story atomicity, undo, arbitrary edits or native Microsoft Publisher.
+
+**The first run was NOT scientific success.** [#38086016342](https://github.com/calex794/sk1/actions/runs/38086016342) failed its admission because it wrongly required 33/33 single PASS, including the known TOKN-protected Story. Correction kept the 11 source SHAs and 31 originally selected pairs unchanged and admits only 32 successful Story controls. That failed run must never be added to the scientific denominator.
+
+**Verdict:** permanent Notion record, no `rar2` patch and no second Writer implementation. Task state `completed` in GitHub mirror.
