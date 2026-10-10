@@ -255,6 +255,45 @@ fn inspect_reverted_cfb(source: &[u8], final_pub: &[u8]) -> Result<Value> {
             }
         }
     }
+
+    // SYID +0 has a long-standing *allocator-high-water candidate* model,
+    // NOT a known Microsoft name or a universal per-edit counter. Localize
+    // every Quill byte delta to the exact persisted SYID first DWORD if true.
+    let source_syid_first_dword=old_catalog.syid.header.value;
+    let final_syid_first_dword=new_catalog.syid.header.value;
+    let source_syid_count=old_catalog.syid.count.value;
+    let final_syid_count=new_catalog.syid.count.value;
+    let syid_live_ids_equal=old_catalog.syid.ids.iter().map(|s|s.value.0)
+        .eq(new_catalog.syid.ids.iter().map(|s|s.value.0));
+    let mut syid_header_offset=None;
+    if matched_descriptor_sequence {
+        let old_syid=left.iter().filter(|d|d.name.value==*b"SYID")
+            .collect::<Vec<_>>();
+        let new_syid=right.iter().filter(|d|d.name.value==*b"SYID")
+            .collect::<Vec<_>>();
+        if old_syid.len()==1 && new_syid.len()==1 &&
+           old_syid[0].data_offset.value==new_syid[0].data_offset.value &&
+           old_syid[0].data_length.value==new_syid[0].data_length.value &&
+           old_syid[0].data_length.value>=8 {
+            syid_header_offset=Some(usize::try_from(old_syid[0].data_offset.value)?);
+        }
+    }
+    let mut syid_header_changed_bytes=Value::Null;
+    let mut quill_differing_bytes_outside_syid_header=Value::Null;
+    if let Some(offset)=syid_header_offset {
+        if old_quill.len()==new_quill.len() {
+            let mut in_header=0usize;
+            let mut outside_header=0usize;
+            for (i,(a,b)) in old_quill.iter().zip(&new_quill).enumerate() {
+                if a!=b {
+                    if i>=offset && i<offset+4 {in_header+=1;}
+                    else {outside_header+=1;}
+                }
+            }
+            syid_header_changed_bytes=json!(in_header);
+            quill_differing_bytes_outside_syid_header=json!(outside_header);
+        }
+    }
     let all_logical_streams_equal=missing_paths==0 && new_paths==0
         && type_changes==0 && non_quill_streams_changed==0 && quill_bytes_equal;
     let whole_file_equal=source==final_pub;
@@ -262,6 +301,14 @@ fn inspect_reverted_cfb(source: &[u8], final_pub: &[u8]) -> Result<Value> {
         "whole-file equal but logical CFB differs");
     Ok(json!({
         "schema":"sk1.cfb-diag-pub-t-957.diff.v1",
+        "source_syid_first_dword":source_syid_first_dword,
+        "final_syid_first_dword":final_syid_first_dword,
+        "syid_first_dword_delta":i64::from(final_syid_first_dword)-i64::from(source_syid_first_dword),
+        "same_syid_live_ids":syid_live_ids_equal,
+        "same_syid_count":source_syid_count==final_syid_count,
+        "syid_first_dword_changed_bytes":syid_header_changed_bytes,
+        "quill_changed_bytes_outside_syid_first_dword":quill_differing_bytes_outside_syid_header,
+
         "source_file_bytes":source.len(),
         "final_file_bytes":final_pub.len(),
         "source_directory_entries":original.len(),
