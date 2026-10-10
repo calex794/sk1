@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: sk1-exp-001-{{ github.ref }}
+  group: sk1-exp-001-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -66,7 +66,7 @@ jobs:
       - name: Run SHA-verified independent corpus
         shell: bash
         env:
-          LIMIT: {{ inputs.max_sources || '35' }}
+          LIMIT: ${{ inputs.max_sources || '35' }}
         run: |
           set -euo pipefail
           python3 experiments/sk1-exp-001/run.py \
