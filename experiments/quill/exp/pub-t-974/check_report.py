@@ -92,16 +92,16 @@ def verify(folder:Path):
     assert plan["excluded_970_sources"]==27 and plan["excluded_970_quotas"]==EXCLUDED_970_QUOTAS
     assert plan["doses_utf16"]==[16,64,192]
     assert plan["excluded_968_sources"]==27 and plan["excluded_968_quotas"]==EXCLUDED_968_QUOTAS
-    assert plan["source_count"]==27
+    assert plan["source_count"]==28
     assert plan["slots"]==list(SLOTS)
     assert plan["max_eligible_stories_per_source"]==3
     assert plan["operation"]=="insert_n_ascii"
     assert plan["prediction"]=="source-only TOKN then FD then growth source geometry or PASS"
     assert plan["native_publisher_acceptance"]=="NOT_EVALUATED"
-    assert isinstance(records,list) and len(records)==27
-    assert len(plan["preselected_sha256"])==27
+    assert isinstance(records,list) and len(records)==28
+    assert len(plan["preselected_sha256"])==28
     assert plan["preselected_sha256"]==[r["source_sha256"] for r in records]
-    assert len(set(plan["preselected_sha256"]))==27
+    assert len(set(plan["preselected_sha256"]))==28
     assert all(SHA.fullmatch(sha) for sha in plan["preselected_sha256"])
     assert type(plan["preselected_source_bytes"]) is int
     assert 0<plan["preselected_source_bytes"]<=50*1024*1024
@@ -242,7 +242,7 @@ def verify(folder:Path):
     assert sum(x["expected_source_bytes"] for x in records)==plan["preselected_source_bytes"]
     s=report["summary"];assert isinstance(s,dict) and set(s)==REPORT_SUM
     expected={
-      "attempted_sources":27,"sha_verified_sources":verified,
+      "attempted_sources":28,"sha_verified_sources":verified,
       "source_status":dict(sorted(source_status.items())),
       "per_host":{k:dict(sorted(v.items())) for k,v in sorted(host_status.items())},
       "evaluated_source_count":evaluated,"evaluated_story_count":len(stories),
