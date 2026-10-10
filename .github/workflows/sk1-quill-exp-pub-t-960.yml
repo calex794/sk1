@@ -1,0 +1,63 @@
+name: SK1 QUILL EXP PUB-T-960 cross-Story edit commutation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-960/**'
+      - 'experiments/registry.json'
+      - '.github/workflows/sk1-quill-exp-pub-t-960.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-960
+  cancel-in-progress: true
+
+jobs:
+  cross_story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Confirm task registry and compile only pinned Writer-based example
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          cp experiments/quill/exp/pub-t-960/cross_story.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_960_cross_story.rs
+          cargo build --release --manifest-path \
+            source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_960_cross_story
+      - name: Run both orders over two DISTINCT Stories and validate all safe receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-960/run.py \
+            --rar2 source-rar2 --out results-pub-t-960
+          python3 experiments/quill/exp/pub-t-960/check_report.py \
+            results-pub-t-960/report.json
+      - name: Upload validated source-safe result (no PUB or Story bytes)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-960-cross-story-verified
+          path: |
+            results-pub-t-960/plan.json
+            results-pub-t-960/records.json
+            results-pub-t-960/report.json
+          retention-days: 30
+          if-no-files-found: error
