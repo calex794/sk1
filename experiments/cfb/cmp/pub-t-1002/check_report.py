@@ -54,6 +54,10 @@ for row in rows:
             assert q["source_exact"] is True
             assert q["source_mime"]==q["derived_mime"]
             assert q["source_mime"] in ("image/jpeg","image/png")
+            if q["source_mime"]=="image/jpeg":
+                assert q["jpeg_quality_used"] in (93,88,82,75,68,60)
+            else:
+                assert q["jpeg_quality_used"] is None
             assert q["source_sha256"]!=q["derived_sha256"]
             assert len(q["source_sha256"])==len(q["derived_sha256"])==64
             assert 0<q["source_encoded_bytes"]<=5*1024*1024
