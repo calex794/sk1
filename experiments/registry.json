@@ -637,6 +637,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec8141b389fcc43a5af904",
       "code_path": "experiments/quill/exp/pub-t-1007",
       "git_ref": "sk1/quill-exp-pub-t-1007"
+    },
+    {
+      "key": "SK1-QUILL-EXP-PUB-T-1019",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": "PUB-T-1019",
+      "state": "running",
+      "task_notion": "https://app.notion.com/p/3f632a84beec81ba8a43ecb1c7b5a36d",
+      "evidence_notion": null,
+      "code_path": "experiments/quill/exp/pub-t-1019",
+      "git_ref": "sk1/quill-exp-pub-t-1019"
     }
   ]
 }
