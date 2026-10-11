@@ -6,6 +6,7 @@ on:
     paths:
       - 'experiments/arch/exp/pub-t-980/**'
       - 'experiments/registry.json'
+      - 'scripts/verify_registry.py'
       - '.github/workflows/pub-t-980-forum.yml'
   workflow_dispatch:
 permissions:
