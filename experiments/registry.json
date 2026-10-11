@@ -493,6 +493,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec81d5a716e797ecec7385",
       "code_path": "experiments/cfb/diag/pub-t-992",
       "git_ref": "sk1/cfb-diag-pub-t-992"
+    },
+    {
+      "key": "SK1-CFB-EXP-PUB-T-993",
+      "kind": "task",
+      "area": "CFB",
+      "type": "EXP",
+      "task_id": "PUB-T-993",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f632a84beec81b1947ced763218aec9",
+      "evidence_notion": "https://app.notion.com/p/3f632a84beec81ebb15bf70b5b0c1c9b",
+      "code_path": "experiments/cfb/exp/pub-t-993",
+      "git_ref": "sk1/cfb-exp-pub-t-993"
     }
   ]
 }
