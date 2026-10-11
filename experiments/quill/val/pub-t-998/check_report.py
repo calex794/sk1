@@ -33,9 +33,14 @@ def main():
     assert [row["changed_physical_bytes"] for row in rows] == [0, 4, 4]
     assert [row["changed_quill_bytes"] for row in rows] == [0, 4, 4]
     assert all(x["opened"] is True and x["reader"].get("opened") is True for x in rows)
+    assert all(row["reader"]["pages"] == 1 and
+               row["reader"]["text_fragment_count"] == 2 and
+               sorted((story["utf16_units"], story["scalars"])
+                      for story in row["reader"]["stories"]) == [(22, 22), (36, 36)]
+               for row in rows)
     controls = r["controls"]
     assert controls["all_three_real_rust_reader_open"]
-    assert controls["source_story_and_page_identity_stable"]
+    assert controls["source_story_extents_and_page_count_stable"]
     assert controls["source_unchanged"]
     assert controls["only_four_expected_input_bytes_changed_per_mutant"]
     if r["verdict"] == "CONFIRMED_READER_ALIGNMENT_HIGH_BYTE_GAP":
@@ -45,12 +50,16 @@ def main():
         assert len(high["paragraph_alignments"]) == 2
         assert all(x["alignment"] == "Right" and x["source_value"] == 2
                    and x["applies_to_original_story_text"] for x in high["paragraph_alignments"])
-        assert len({x["story_id"] for x in high["paragraph_alignments"]}) == 2
+        assert sorted((x["story_utf16_units"], x["story_scalars"],
+                       x["scalar_start"], x["scalar_end"])
+                      for x in high["paragraph_alignments"]) == [
+            (22, 22, 0, 22), (36, 36, 0, 36)]
     else:
         assert r["verdict"] == "OTHER_READER_BEHAVIOR"
     encoded = json.dumps(r).lower()
     forbidden = ["story_text", "source_bytes", "private_story", "source_file_path",
-                 "full_quill", "raw_payload", "input_pub_b64"]
+                 "full_quill", "raw_payload", "input_pub_b64", "canonicalid",
+                 "story_id"]
     assert all(x not in encoded for x in forbidden)
     print("PUB-T-998 report PASS:", r["verdict"])
 
