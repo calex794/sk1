@@ -1,0 +1,111 @@
+name: SK1 CFB VAL PUB-T-984 real-PUB natural SYID inverse holdout
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/val/pub-t-984/**'
+      - '.github/workflows/sk1-cfb-val-pub-t-984.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-cfb-val-pub-t-984
+  cancel-in-progress: true
+
+jobs:
+  natural-pub-inverse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated current registered SK1 laboratory
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout exact external natural corpus source selector T971
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 69989902bfdc87fac1aeb57ccb6a1f78872831fd
+          path: reference-971
+          persist-credentials: false
+
+      - name: Checkout exact independently accepted inverse CFB harness T963
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          path: reference-963
+          persist-credentials: false
+
+      - name: Checkout unchanged canonical Writer Reader CFB implementation
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+
+      - name: Registry gate, immutable source pins, deterministic Story selector and compile
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C reference-971 rev-parse HEAD)" = 69989902bfdc87fac1aeb57ccb6a1f78872831fd
+          test "$(git -C reference-963 rev-parse HEAD)" = 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 -m py_compile \
+            experiments/cfb/val/pub-t-984/prepare.py \
+            experiments/cfb/val/pub-t-984/run.py \
+            experiments/cfb/val/pub-t-984/check_report.py
+          python3 experiments/cfb/val/pub-t-984/prepare.py \
+            --ref-inverse reference-963 --ref-corpus reference-971
+          cp experiments/cfb/val/pub-t-984/real_inverse.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_984_inverse_cfb.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_984_inverse_cfb
+
+      - name: Run 47 predeclared natural SHA through hosted inverse Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/cfb/val/pub-t-984/run.py \
+            --rar2 source-rar2 --ref-corpus reference-971 \
+            --output results-pub-t-984
+          status=$?
+          set -e
+          echo "$status" > research-exit-code.txt
+
+      - name: Independently validate all source-safe Writer and full-PUB receipts
+        id: validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/val/pub-t-984/check_report.py \
+            results-pub-t-984 reference-963
+
+      - name: Upload only three independently checked source-safe JSON files
+        if: steps.validation.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-984-natural-syid-inverse-source-safe
+          path: |
+            results-pub-t-984/plan.json
+            results-pub-t-984/records.json
+            results-pub-t-984/report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require at least ten distinct actual source SHA inverse finals
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat research-exit-code.txt)" = 0
