@@ -553,6 +553,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec81cbbd9fd8306b64d29c",
       "code_path": "experiments/cfb/cmp/pub-t-997",
       "git_ref": "sk1/pub-cmp-pub-t-997"
+    },
+    {
+      "key": "SK1-CFB-CMP-PUB-T-999",
+      "kind": "task",
+      "area": "CFB",
+      "type": "CMP",
+      "task_id": "PUB-T-999",
+      "state": "claimed",
+      "task_notion": "https://app.notion.com/p/3f632a84beec8133ad7afef24f7e04b4",
+      "evidence_notion": null,
+      "code_path": "experiments/cfb/cmp/pub-t-999",
+      "git_ref": "sk1/cfb-cmp-pub-t-999"
     }
   ]
 }
