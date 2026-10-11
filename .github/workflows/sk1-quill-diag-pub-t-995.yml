@@ -1,0 +1,102 @@
+name: SK1 QUILL DIAG PUB-T-995 source-only original SYID live-IDs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/diag/pub-t-995/**'
+      - '.github/workflows/sk1-quill-diag-pub-t-995.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sk1-quill-diag-pub-t-995
+  cancel-in-progress: true
+
+jobs:
+  natural-syid-live-ids:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated original-SYID science
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout frozen Reader Quill parser and source manifest
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+
+      - name: Checkout source-verified T992 exact four training archive retriever
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: cfcce7f3f9c425210ee28265d4dbdf79bf742dcc
+          path: reference-992
+          persist-credentials: false
+
+      - name: Retrieve T992 source-safe 29 original SHA scalar receipts
+        uses: actions/download-artifact@v4
+        with:
+          name: sk1-pub-t-992-original-training-high-syid-source-safe
+          path: reference-992-safe
+          github-token: ${{ github.token }}
+          repository: calex794/sk1
+          run-id: 38135790166
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+
+      - name: Compile original production Quill parser with numeric IDs census example
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          test "$(git -C reference-992 rev-parse HEAD)" = cfcce7f3f9c425210ee28265d4dbdf79bf742dcc
+          python3 -m py_compile \
+            experiments/quill/diag/pub-t-995/run.py \
+            experiments/quill/diag/pub-t-995/check_report.py
+          cp experiments/quill/diag/pub-t-995/source_syid_ids.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_995_natural_live_ids.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_995_natural_live_ids
+
+      - name: Rehash frozen 29 originals and scan numeric Quill SYID live IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/diag/pub-t-995/run.py \
+            --rar2 source-rar2 --reference-992 reference-992 \
+            --reference-992-safe reference-992-safe \
+            --source-stage private-original-29-pub-never-export \
+            --output results-pub-t-995
+
+      - name: Independently rehash original sources and recalculate each numeric ID and fixed pair
+        id: verified
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/diag/pub-t-995/check_report.py \
+            results-pub-t-995 private-original-29-pub-never-export \
+            source-rar2 reference-992 reference-992-safe
+
+      - name: Upload exactly three safe numeric evidence JSON files, not any PUB
+        if: steps.verified.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-995-original-syid-id-sets-source-safe
+          path: |
+            results-pub-t-995/plan.json
+            results-pub-t-995/records.json
+            results-pub-t-995/report.json
+          retention-days: 30
+          if-no-files-found: error
