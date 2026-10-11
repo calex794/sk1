@@ -1,0 +1,61 @@
+name: SK1 PUB-T-999 Publisher reference versus Reader and LibreOffice
+on:
+  push:
+    branches: [sk1/cfb-cmp-pub-t-999]
+    paths:
+      - experiments/registry.json
+      - experiments/cfb/cmp/pub-t-999/**
+      - .github/workflows/sk1-cfb-cmp-t999.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sk1-cfb-cmp-pub-t999
+  cancel-in-progress: true
+
+jobs:
+  ordinal-visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate SK1 experimental ownership
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: a654d1af59be6173cd31ba3b7be37b1155a28ba5
+          path: source-rar2
+          persist-credentials: false
+      - name: Retrieve exact completed real Reader browser visual receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: publisher-visual-golden-batch01-receipt
+          path: source-free-reader
+          github-token: ${{ github.token }}
+          repository: Lalalalendia/rar2
+          run-id: 38143407856
+      - name: Install LibreOffice Draw and controlled PDF renderer
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-draw fonts-liberation >/dev/null
+          python3 -m venv .venv-t999
+          .venv-t999/bin/python -m pip install --quiet "PyMuPDF==1.24.14" "Pillow==11.3.0"
+      - name: Execute same-byte 49-PUB comparisons
+        run: |
+          .venv-t999/bin/python experiments/cfb/cmp/pub-t-999/run.py \
+            source-rar2 source-free-reader/summary.json report-t999
+          .venv-t999/bin/python experiments/cfb/cmp/pub-t-999/check_report.py \
+            report-t999/report.json source-rar2
+      - name: Upload only structured numerical scientific receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t999-visual-source-safe
+          path: report-t999/report.json
+          if-no-files-found: warn
+          retention-days: 30
