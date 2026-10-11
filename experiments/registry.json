@@ -481,6 +481,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec8192b883f2dd51a5cda9",
       "code_path": "experiments/quill/val/pub-t-989",
       "git_ref": "sk1/quill-val-pub-t-989"
+    },
+    {
+      "key": "SK1-CFB-DIAG-PUB-T-992",
+      "kind": "task",
+      "area": "CFB",
+      "type": "DIAG",
+      "task_id": "PUB-T-992",
+      "state": "running",
+      "task_notion": "https://app.notion.com/p/3f632a84beec8184b9c8d90fb53fcdc4",
+      "evidence_notion": null,
+      "code_path": "experiments/cfb/diag/pub-t-992",
+      "git_ref": "sk1/cfb-diag-pub-t-992"
     }
   ]
 }
