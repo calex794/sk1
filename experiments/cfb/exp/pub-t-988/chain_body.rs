@@ -136,7 +136,8 @@ fn run_three_cycles(source:&[u8],target_syid:u32,before:&str,inserted:&str)->Res
         "completed_cycles":cycles.iter().filter(|c|c["status"]=="PASS").count(),
         "completed_writer_materializations":steps,
         "cycles":cycles,
-        "reached_writer_generated_fe":header_value(&current)?==254,
+        "reached_writer_generated_fe":cycles.iter().any(|c|
+            c["status"]=="PASS" && c["after_delete_header"]==254),
         "reached_writer_generated_0100":header_value(&current)?==256,
         "source_original_unchanged":sha256(source).to_string()==NATURAL_SOURCE_SHA
     }))
