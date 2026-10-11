@@ -60,7 +60,7 @@ def fetch_source():
         raw = handle.read(200000)
     if len(raw) != EXPECTED_SIZE:
         raise ValueError("POI_SOURCE_SIZE_DRIFT")
-    blob = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\\0" + raw).hexdigest()
+    blob = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
     if blob != POI_BLOB:
         raise ValueError("POI_SOURCE_BLOB_DRIFT")
     return raw
@@ -139,7 +139,7 @@ def check_source_structure(prior, quill):
         if len(selected) != 1:
             raise ValueError("STSH1_ALIGN_PRESENCE_CHANGED")
         id_, wire, pos, width = selected[0]
-        if id_ != 4 or wire != 0x12 or width != 2 or quill[pos + 2:pos + 4] != b"\\x02\\x5a":
+        if id_ != 4 or wire != 0x12 or width != 2 or quill[pos + 2:pos + 4] != b"\x02\x5a":
             raise ValueError("STSH1_ALIGN_VALUE_CHANGED")
         low_offsets.append(pos + 2)
         high_offsets.append(pos + 3)
