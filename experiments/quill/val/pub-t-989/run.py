@@ -94,6 +94,16 @@ def main():
 
     result["cargo_exit_code"] = proc.returncode
     output = proc.stdout + "\n" + proc.stderr
+    # Safe classifier: do not print Cargo output or private source snippets.
+    result["cargo_diagnostics"] = {
+        "rustc_error_codes": sorted(set(re.findall(r"error\[E([0-9]{4})\]", output))),
+        "missing_target": bool(re.search(r"no test target|no package named", output, re.I)),
+        "missing_dependency": bool(re.search(r"failed to (download|get|load|select)|network failure|lock file.*needs to be updated", output, re.I)),
+        "rustc_compile_failure": bool(re.search(r"could not compile|error: aborting", output, re.I)),
+        "test_panicked": "FAILED" in output and "panicked" in output,
+        "cargo_has_lockfile": (source / "vendor/producer-a/Cargo.lock").is_file(),
+        "output_line_count": len(output.splitlines()),
+    }
     count = len(re.findall(r"test [^\n]*" + re.escape(NAME) + r" \.\.\. ok", output))
     summary = bool(re.search(
         r"test result: ok\.\s+1 passed;\s+0 failed;", output
