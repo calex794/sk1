@@ -85,7 +85,7 @@ fn encode_jpeg(decoded: &DecodedImageV1) -> Result<Vec<u8>> {
 
 fn no_carried_metadata(data: &[u8]) -> bool {
     !data.windows(6).any(|s| s == b"Exif\0\0")
-        && !data.windows(9).any(|s| s == b"Photoshop ")
+        && !data.windows(10).any(|s| s == b"Photoshop ")
         && !data.windows(3).any(|s| s == b"XMP")
 }
 
@@ -217,6 +217,8 @@ fn negative_controls() -> Result<Value> {
         let mut e = PngEncoder::new(&mut png, 2, 2);
         e.set_color(PngColor::Rgba);
         e.set_depth(BitDepth::Eight);
+        // Synthetic valid source carries metadata that the new preview must shed.
+        e.add_text_chunk("Comment".to_owned(), "source-origin-metadata".to_owned())?;
         let mut w = e.write_header()?;
         w.write_image_data(&png_pixels)?;
     }
@@ -228,7 +230,7 @@ fn negative_controls() -> Result<Value> {
     tiny.max_total_pixels = 1;
     let expected_pixel_cap = decode_image_v1(&png, "image/png", &hash,
         "color_untransformed_lab", &policy, &tiny).is_err();
-    let truncated = png[..png.len()-7].to_vec();
+    let truncated = png[..png.len()/2].to_vec();
     let expected_bad_png = decode_image_v1(&truncated, "image/png", &hex_hash(&truncated),
         "color_untransformed_lab", &policy, &limits()).is_err();
     let bad_type = decode_image_v1(&png, "image/svg+xml", &hash,
