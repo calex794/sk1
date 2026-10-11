@@ -137,6 +137,13 @@ def check_writer(probe,source,legacy):
 
 def check(result:Path,poi:Path,aspose:Path,filefmt:Path,
           lalamu:Path,rar2:Path,ref963:Path):
+    result=result.resolve(strict=True)
+    poi=poi.resolve(strict=True)
+    aspose=aspose.resolve(strict=True)
+    filefmt=filefmt.resolve(strict=True)
+    lalamu=lalamu.resolve(strict=True)
+    rar2=rar2.resolve(strict=True)
+    ref963=ref963.resolve(strict=True)
     run=mod(HERE/"run.py","source_pinned_991")
     legacy=mod(ref963/"experiments/cfb/val/pub-t-963/check_report.py","original_check_t963")
     assert {p.name for p in result.iterdir()}=={"plan.json","records.json","report.json"}
