@@ -1,0 +1,123 @@
+name: SK1 CFB EXP PUB-T-988 natural FA to Writer FE to 0x100
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/exp/pub-t-988/**'
+      - '.github/workflows/sk1-cfb-exp-pub-t-988.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-cfb-exp-pub-t-988
+  cancel-in-progress: true
+
+jobs:
+  writer-derived-natural:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated registered SK1 task
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout immutable original natural PUB donor
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/lalamu
+          ref: 87094c23e2a9eaa2aa9e95d72ec52f72ef109f11
+          path: original-lalamu
+          sparse-checkout: |
+            pub-corpus/corpus
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+
+      - name: Checkout exact upstream-independent T984 Writer-probe generator
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 14ac75ae0346b3bdbeeada110e1f463dda6cbb27
+          path: reference-984
+          persist-credentials: false
+
+      - name: Checkout proven T963 Writer and byte-CFB helpers
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          path: reference-963
+          persist-credentials: false
+
+      - name: Checkout frozen T971 source-provenance control
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: cd38c8d6a545737f9f99821076340505db5e149c
+          path: reference-971
+          persist-credentials: false
+
+      - name: Checkout unchanged product implementation
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+
+      - name: Strict source and upstream identity pins; compile genuine Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C original-lalamu rev-parse HEAD)" = 87094c23e2a9eaa2aa9e95d72ec52f72ef109f11
+          test "$(git -C original-lalamu rev-parse HEAD:pub-corpus/corpus/native/unclassified)" = 8146fa9fdd2f577ebe02bc7205a61bb14e20d3e7
+          test "$(git -C reference-984 rev-parse HEAD)" = 14ac75ae0346b3bdbeeada110e1f463dda6cbb27
+          test "$(git -C reference-963 rev-parse HEAD)" = 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          test "$(git -C reference-971 rev-parse HEAD)" = cd38c8d6a545737f9f99821076340505db5e149c
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 -m py_compile \
+            experiments/cfb/exp/pub-t-988/prepare.py \
+            experiments/cfb/exp/pub-t-988/run.py \
+            experiments/cfb/exp/pub-t-988/check_report.py
+          python3 experiments/cfb/exp/pub-t-988/prepare.py \
+            --ref-984 reference-984 --ref-963 reference-963 --ref-971 reference-971
+          cp experiments/cfb/exp/pub-t-988/generated_writer_chain.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_988_writer_chain.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_988_writer_chain
+
+      - name: Run original FA through three genuine Writer inverse-pair cycles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/exp/pub-t-988/run.py \
+            --rar2 source-rar2 --donor original-lalamu \
+            --output results-pub-t-988
+
+      - name: Independently verify natural source, Writer steps and entire PUB raw bytes
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/exp/pub-t-988/check_report.py \
+            results-pub-t-988 original-lalamu reference-963
+
+      - name: Upload exactly three source-safe experiment JSON receipts
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-988-writer-derived-fe-source-safe
+          path: |
+            results-pub-t-988/plan.json
+            results-pub-t-988/records.json
+            results-pub-t-988/report.json
+          retention-days: 30
+          if-no-files-found: error
