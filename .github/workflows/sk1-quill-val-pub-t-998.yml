@@ -1,0 +1,72 @@
+name: SK1 PUB-T-998 actual Rust Reader STSH1 alignment 0x5A02
+on:
+  push:
+    branches: [sk1/quill-val-pub-t-998]
+    paths:
+      - experiments/registry.json
+      - experiments/quill/val/pub-t-998/**
+      - .github/workflows/sk1-quill-val-pub-t-998.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - experiments/registry.json
+      - experiments/quill/val/pub-t-998/**
+      - .github/workflows/sk1-quill-val-pub-t-998.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-998
+  cancel-in-progress: true
+
+jobs:
+  actual-reader-three-arms:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate task identity before science
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: b224a614af48c273b2d4bc0881793cf0217cc16d
+          path: source-rar2
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 87a6733516ad6ffd1b6b97a3176f359bfeb60ca1
+          path: reference-t994
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install pinned public CFB helper only
+        run: |
+          python3 -m venv .venv-sk1-998
+          .venv-sk1-998/bin/pip install --quiet olefile==0.47
+      - name: Compile real Rust Viewer with disposable source-safe measurement binary
+        run: |
+          cp experiments/quill/val/pub-t-998/sk1-t998-reader-align.rs \
+            source-rar2/vendor/producer-a/crates/pub-viewer/src/bin/sk1-t998-reader-align.rs
+          cargo build --manifest-path source-rar2/vendor/producer-a/Cargo.toml \
+            -p pub-viewer --bin sk1-t998-reader-align
+      - name: Execute original and four-byte-only mutant A/B in disposable workspace
+        run: |
+          .venv-sk1-998/bin/python experiments/quill/val/pub-t-998/run.py \
+            source-rar2 reference-t994 \
+            source-rar2/vendor/producer-a/target/debug/sk1-t998-reader-align \
+            source-safe-t998/report.json
+          python3 experiments/quill/val/pub-t-998/check_report.py source-safe-t998/report.json
+      - name: Publish source-free numbers and provenance only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-998-reader-alignment-three-arms
+          path: source-safe-t998/report.json
+          if-no-files-found: warn
+          retention-days: 30
