@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - sk1/quill-exp-pub-t-979
+  pull_request:
+    paths:
+      - 'experiments/quill/exp/pub-t-979/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-979.yml'
   workflow_dispatch:
 permissions:
   contents: read
