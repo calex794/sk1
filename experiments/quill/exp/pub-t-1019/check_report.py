@@ -151,9 +151,20 @@ def audit(folder):
     chosen_stories=0
     for row in records:
         assert set(row)==RECORD
-        assert row["status"]==row["reason"]
-        assert row["status"] in {"EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED"}
+        assert row["status"] in {
+            "EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED",
+            "NOT_EVALUATED"}
         assert type(row["source_type"]) is str and len(row["source_type"])>0
+        if row["status"]=="NOT_EVALUATED":
+            assert type(row["reason"]) is str
+            assert re.fullmatch(r"[A-Z_]{3,64}",row["reason"])
+            assert row["reason"] not in {"NOT_STARTED","EVALUATED"}
+            assert row["source_syid_header"] is None
+            assert row["eligible_story_count"]==0
+            assert row["selected_story_count"]==0
+            assert row["stories"]==[]
+            continue
+        assert row["status"]==row["reason"]
         nonneg(row["source_syid_header"],2**32-1)
         nonneg(row["eligible_story_count"],100000)
         nonneg(row["selected_story_count"],2)

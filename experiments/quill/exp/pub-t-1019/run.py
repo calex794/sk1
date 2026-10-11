@@ -61,7 +61,17 @@ def admit(row,binary):
             "reason":"NOT_STARTED","source_syid_header":None,
             "eligible_story_count":0,"selected_story_count":0,"stories":[]}
     try:
-        contents=source.retrieve(row["url"],min(row["size"]+1,source.MAX_FILE_BYTES))
+
+        # Source transport errors may be retried once, but never use a
+        # different source or select candidates based on Writer outcomes.
+        try:
+            contents=source.retrieve(row["url"],min(row["size"]+1,source.MAX_FILE_BYTES))
+        except Exception:
+            try:
+                contents=source.retrieve(row["url"],min(row["size"]+1,source.MAX_FILE_BYTES))
+            except Exception as retry_error:
+                report["reason"]="SOURCE_FETCH_"+type(retry_error).__name__.upper()
+                return report
         if len(contents)!=row["size"] or source.digest(contents)!=row["sha256"]:
             report["reason"]="SOURCE_BYTES_OR_SHA_DRIFT"
             return report
@@ -249,6 +259,12 @@ def main():
     admitted=[]
     for row in rows:
         admitted.append(admit(row,binary))
+        # Bounded machine receipt per source, never URLs, Story text or raw bytes.
+        print(json.dumps({"source_sha256":admitted[-1]["source_sha256"],
+                          "status":admitted[-1]["status"],
+                          "reason":admitted[-1]["reason"],
+                          "selected_story_count":admitted[-1]["selected_story_count"]},
+                         sort_keys=True),flush=True)
         (out/"records.json").write_text(
             json.dumps(admitted,indent=2)+"\n",encoding="utf-8")
     result={"schema":"sk1.quill-exp-pub-t-1019.report.v1",
