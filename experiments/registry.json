@@ -356,7 +356,7 @@
       "area": "ARCH",
       "type": "EXP",
       "task_id": "PUB-T-980",
-      "state": "active",
+      "state": "claimed",
       "task_notion": "https://app.notion.com/p/3f632a84beec81fab038d0d54f04ede7",
       "evidence_notion": null,
       "code_path": "experiments/arch/exp/pub-t-980",
