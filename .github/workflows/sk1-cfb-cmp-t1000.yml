@@ -1,0 +1,79 @@
+name: SK1 PUB-T-1000 source-image security regression postmortem
+on:
+  push:
+    branches: [sk1/cfb-cmp-pub-t-1000]
+    paths:
+      - experiments/registry.json
+      - experiments/cfb/cmp/pub-t-1000/**
+      - .github/workflows/sk1-cfb-cmp-t1000.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sk1-cfb-cmp-t1000
+  cancel-in-progress: true
+
+jobs:
+  source-safe-historical-triad:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify SK1 task ownership
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: ea5689c6a1fff065297fa3ff3e84a153ed81ecfe
+          fetch-depth: 2
+          path: rar2-security-policy
+          persist-credentials: false
+      - name: Real Browser Reader 2026-10-09 prior security policy
+        uses: actions/download-artifact@v4
+        with:
+          name: publisher-visual-golden-batch01-receipt
+          path: reader-before
+          github-token: ${{ github.token }}
+          repository: Lalalalendia/rar2
+          run-id: 37935975286
+      - name: Real Browser Reader 2026-10-11 current secure policy
+        uses: actions/download-artifact@v4
+        with:
+          name: publisher-visual-golden-batch01-receipt
+          path: reader-after
+          github-token: ${{ github.token }}
+          repository: Lalalalendia/rar2
+          run-id: 38143407856
+      - name: Pinned same-PUB LibreOffice genuine ODG-PDF 2026-10-11
+        uses: actions/download-artifact@v4
+        with:
+          name: sk1-pub-t999-visual-source-safe
+          path: lo-fixed
+          github-token: ${{ github.token }}
+          repository: calex794/sk1
+          run-id: 38145210671
+      - name: Reproduce all 162 visual history changes with source and policy pins
+        run: |
+          python3 experiments/cfb/cmp/pub-t-1000/audit.py \
+            reader-before/summary.json \
+            reader-after/summary.json \
+            lo-fixed/report.json \
+            rar2-security-policy \
+            safe-result-t1000/report.json
+          python3 experiments/cfb/cmp/pub-t-1000/check_report.py \
+            safe-result-t1000/report.json \
+            reader-before/summary.json \
+            reader-after/summary.json \
+            lo-fixed/report.json
+      - name: Upload numerical receipt only; no source PUB or PDF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t1000-source-safe-postmortem
+          path: safe-result-t1000/report.json
+          if-no-files-found: warn
+          retention-days: 30
