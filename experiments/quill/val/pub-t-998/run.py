@@ -232,9 +232,20 @@ def main():
         # causality; these variants are NOT independent Microsoft Publisher saves.
         orig, upper, lower = [r["reader"] for r in report["variants"]]
         all_open = all(v.get("opened") is True for v in (orig, upper, lower))
+        # Object identity may depend on whole-file content and Story iteration
+        # order may change across equal-length style-only mutants. Neither
+        # supplies stable source-text identity; byte-exact TEXT preservation was
+        # asserted above, so compare Story extents as an unordered multiset.
+        def physical_story_extents(reader):
+            return sorted((story["utf16_units"], story["scalars"])
+                          for story in reader["stories"])
+
         source_stable = all_open and (
-            orig["stories"] == upper["stories"] == lower["stories"] and
-            orig["pages"] == upper["pages"] == lower["pages"]
+            physical_story_extents(orig) == physical_story_extents(upper)
+            == physical_story_extents(lower) == [(22, 22), (36, 36)] and
+            orig["pages"] == upper["pages"] == lower["pages"] == 1 and
+            orig["text_fragment_count"] == upper["text_fragment_count"]
+            == lower["text_fragment_count"] == 2
         )
         base_runs = orig.get("paragraph_alignments", [])
         hi_runs = upper.get("paragraph_alignments", [])
@@ -244,9 +255,10 @@ def main():
             and all(r.get("alignment") == "Right" and r.get("source_value") == 2
                     and r.get("applies_to_original_story_text") is True
                     for r in hi_runs)
-            and len({r.get("story_id") for r in hi_runs}) == 2
-            and all(r.get("scalar_start") == 0 and r.get("scalar_end") > 0
-                    for r in hi_runs)
+            and sorted((r.get("story_utf16_units"), r.get("story_scalars"),
+                        r.get("scalar_start"), r.get("scalar_end"))
+                       for r in hi_runs)
+                == [(22, 22, 0, 22), (36, 36, 0, 36)]
         )
         if not all_open or not source_stable:
             report["verdict"] = "NOT_EVALUATED"
@@ -256,7 +268,7 @@ def main():
             report["verdict"] = "OTHER_READER_BEHAVIOR"
         report["controls"] = {
             "all_three_real_rust_reader_open": all_open,
-            "source_story_and_page_identity_stable": source_stable,
+            "source_story_extents_and_page_count_stable": source_stable,
             "expected_raw_value_high_only_delta_changes_projection": exact_right,
             "source_unchanged": sha256(original) == report["source_provenance"]["source_sha256"],
             "only_four_expected_input_bytes_changed_per_mutant": True
@@ -266,7 +278,15 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
                       encoding="utf-8")
-    print("PUB-T-998 actual Rust reader verdict:", report["verdict"])
+    print("PUB-T-998 actual Rust reader verdict:", report["verdict"],
+          "variants (opened, pages, story extents, paragraph runs):",
+          [(v["variant"], v["opened"], v["reader"].get("pages"),
+            sorted((x["utf16_units"], x["scalars"])
+                   for x in v["reader"].get("stories", [])),
+            [(x["alignment"], x["scalar_start"], x["scalar_end"],
+              x.get("story_utf16_units"), x["source_value"])
+             for x in v["reader"].get("paragraph_alignments", [])])
+           for v in report["variants"]])
     return 0 if report["verdict"] != "NOT_EVALUATED" else 2
 
 
