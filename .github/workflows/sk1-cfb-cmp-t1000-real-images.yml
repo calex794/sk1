@@ -1,0 +1,69 @@
+name: SK1 PUB-T-1000 actual Reader image source exact witness
+on:
+  push:
+    branches: [sk1/cfb-cmp-pub-t-1000]
+    paths:
+      - experiments/cfb/cmp/pub-t-1000/**
+      - .github/workflows/sk1-cfb-cmp-t1000-real-images.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: sk1-cfb-cmp-t1000-real-images
+  cancel-in-progress: true
+jobs:
+  exact-current-reader-image-admission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: a654d1af59be6173cd31ba3b7be37b1155a28ba5
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Exact old real browser Reader receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: publisher-visual-golden-batch01-receipt
+          path: reader-before
+          github-token: ${{ github.token }}
+          repository: Lalalalendia/rar2
+          run-id: 37935975286
+      - name: Exact current real browser Reader receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: publisher-visual-golden-batch01-receipt
+          path: reader-after
+          github-token: ${{ github.token }}
+          repository: Lalalalendia/rar2
+          run-id: 38143407856
+      - name: Build ephemeral Rust Viewer image-source probe (no RAR2 commit)
+        run: |
+          cp experiments/cfb/cmp/pub-t-1000/sk1-security-image-probe.rs \
+            source-rar2/vendor/producer-a/crates/pub-viewer/src/bin/sk1-security-image-probe.rs
+          cargo build --manifest-path source-rar2/vendor/producer-a/Cargo.toml \
+            -p pub-viewer --bin sk1-security-image-probe
+      - name: Run 7 actual SHA-verified public PUB Viewer image classifications
+        run: |
+          python3 experiments/cfb/cmp/pub-t-1000/image_probe.py \
+            source-rar2 \
+            source-rar2/vendor/producer-a/target/debug/sk1-security-image-probe \
+            reader-before/summary.json reader-after/summary.json \
+            source-safe-image-envelope/report.json
+          python3 experiments/cfb/cmp/pub-t-1000/check_image_probe.py \
+            source-safe-image-envelope/report.json
+      - name: Publish only counts and source SHA, no original PUB or images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t1000-real-viewer-source-safe-images
+          path: source-safe-image-envelope/report.json
+          retention-days: 30
+          if-no-files-found: warn
