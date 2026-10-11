@@ -80,7 +80,7 @@ def main():
     result["source_injection_verified"] = True
 
     command = [
-        "cargo", "test", "--locked", "--manifest-path",
+        "cargo", "test", "--manifest-path",
         str(source / "vendor/producer-a/Cargo.toml"),
         "-p", "pub-quill", NAME, "--", "--nocapture"
     ]
