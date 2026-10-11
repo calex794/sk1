@@ -1,0 +1,85 @@
+name: SK1 QUILL VAL PUB-T-982 equal-length substitution Writer
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/val/pub-t-982/**'
+      - '.github/workflows/sk1-quill-val-pub-t-982.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-982
+  cancel-in-progress: true
+
+jobs:
+  same-length-replacement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 experiment
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exact original T963 science comparator
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          path: reference-sk1
+          persist-credentials: false
+      - name: Checkout pinned upstream Reader Editor Writer
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Compile pinned Writer with only new study-specific probe tail
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 experiments/quill/val/pub-t-982/prepare.py \
+            --reference reference-sk1 --writer source-rar2
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_982_replace
+      - name: Execute 3 SHA by 8 one-code-unit equal-length replacements
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/val/pub-t-982/run.py \
+            --rar2 source-rar2 --output results-pub-t-982
+          status=$?
+          set -e
+          echo "$status" > run-status.txt
+      - name: Independently verify source-safe research receipts
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/val/pub-t-982/check_report.py results-pub-t-982
+      - name: Upload exactly three source-safe JSON receipts
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-982-single-unit-substitution
+          path: |
+            results-pub-t-982/plan.json
+            results-pub-t-982/records.json
+            results-pub-t-982/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Require complete original-source admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat run-status.txt)" = 0
