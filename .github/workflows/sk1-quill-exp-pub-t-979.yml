@@ -1,0 +1,30 @@
+name: SK1 T979 controlled in-stream recovery
+on:
+  push:
+    branches:
+      - sk1/quill-exp-pub-t-979
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recovery-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact public-blob synthetic recovery and negative controls
+        run: python3 experiments/quill/exp/pub-t-979/run.py
+      - name: Verify minimal source-safe receipt
+        run: |
+          python3 - <<'PY'
+          import json
+          x=json.load(open('results-t979/report.json'))
+          assert len(x['cases']) == 2
+          assert all(r['single_byte_recovery']['whole_pub_sha256_equal'] for r in x['cases'])
+          assert all(r['colluding_donors_control']['status']=='inconclusive_undetectable_without_trust' for r in x['cases'])
+          print('T979 receipt gate PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sk1-t979-evidence
+          path: results-t979/report.json
