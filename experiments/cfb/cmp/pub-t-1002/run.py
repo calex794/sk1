@@ -142,12 +142,14 @@ def main():
        "sampled_mean_abs_channel_delta":image22[0].get("pixel_comparison",{}).get("sampled_mean_abs_channel_delta"),
        "original_never_delivered_to_browser":True
     }
+    # Emit only the source-safe numerical receipt before an acceptance error so
+    # the failure *class* can be diagnosed without uploading untrusted images.
+    result.parent.mkdir(parents=True,exist_ok=True)
+    result.write_text(json.dumps(output,sort_keys=True,indent=2)+"\n")
     if image22[0]["status"]!="encoded_candidate_only_not_browser_safe":
         raise RuntimeError("022_REQUIRED_DECODER_CANDIDATE_NOT_CREATED")
     if totals["source_exact_accepted_to_new_candidate"] < 1:
         raise RuntimeError("NO_SAFE_DERIVED_CANDIDATE_CREATED")
-    result.parent.mkdir(parents=True,exist_ok=True)
-    result.write_text(json.dumps(output,sort_keys=True,indent=2)+"\n")
     print(json.dumps(totals,sort_keys=True))
     print(json.dumps(output["control_022"],sort_keys=True))
 
