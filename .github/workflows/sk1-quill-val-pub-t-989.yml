@@ -1,0 +1,57 @@
+name: SK1 QUILL VAL PUB-T-989 STSH-FONT Rust preservation
+on:
+  push:
+    branches:
+      - sk1/quill-val-pub-t-989
+    paths:
+      - experiments/registry.json
+      - experiments/quill/val/pub-t-989/**
+      - .github/workflows/sk1-quill-val-pub-t-989.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - experiments/registry.json
+      - experiments/quill/val/pub-t-989/**
+      - .github/workflows/sk1-quill-val-pub-t-989.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-989
+  cancel-in-progress: true
+
+jobs:
+  real-rust-preservation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify SK1 task registry
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 22a322ed10d9fe8a4ade45acf83bebd0442b691b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Execute one pinned real-Rust Writer test on public Sample3
+        run: |
+          python3 experiments/quill/val/pub-t-989/run.py --rar2 source-rar2 --out result-pub-t-989
+          python3 experiments/quill/val/pub-t-989/check_report.py result-pub-t-989/report.json
+      - name: Upload only source-safe JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-quill-val-pub-t-989-source-safe
+          path: |
+            result-pub-t-989/plan.json
+            result-pub-t-989/report.json
+          if-no-files-found: warn
+          retention-days: 30
