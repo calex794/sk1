@@ -1,0 +1,80 @@
+name: SK1 CFB VAL PUB-T-983 original-CFB memory amplification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/val/pub-t-983/**'
+      - '.github/workflows/sk1-cfb-val-pub-t-983.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-cfb-val-pub-t-983
+  cancel-in-progress: true
+
+jobs:
+  read-profiling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout isolated SK1 task
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout unchanged original pub_cfb
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Check exact inputs and compile isolated counting profiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 scripts/verify_registry.py
+          python3 -m py_compile experiments/cfb/val/pub-t-983/run.py \
+            experiments/cfb/val/pub-t-983/check_report.py
+          cp experiments/cfb/val/pub-t-983/read_profile.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_983_profile.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_983_profile
+      - name: Profile ten publicly pinned ordinary CFB documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/cfb/val/pub-t-983/run.py \
+            --rar2 source-rar2 --output results-t983
+          status=$?
+          set -e
+          echo "$status" > science-status.txt
+      - name: Independently verify numeric-only source-safe evidence
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/val/pub-t-983/check_report.py results-t983
+      - name: Upload verified safe receipts only
+        if: steps.verify.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-983-cfb-memory-source-safe
+          path: |
+            results-t983/plan.json
+            results-t983/records.json
+            results-t983/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Enforce sufficient evaluated public inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat science-status.txt)" = 0
