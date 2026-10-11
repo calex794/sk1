@@ -356,9 +356,9 @@
       "area": "CFB",
       "type": "CMP",
       "task_id": "PUB-T-981",
-      "state": "running",
+      "state": "completed",
       "task_notion": "https://app.notion.com/p/3f632a84beec81df8da6dda4e75ab198",
-      "evidence_notion": null,
+      "evidence_notion": "https://app.notion.com/p/3f632a84beec8107be0fd4595e19f068",
       "code_path": "experiments/cfb/cmp/pub-t-981",
       "git_ref": "sk1/cfb-cmp-pub-t-981"
     }
