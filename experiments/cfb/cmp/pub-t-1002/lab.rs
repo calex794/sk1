@@ -19,7 +19,8 @@ const MAX_AGGREGATE_DERIVED_BYTES: usize = 12 * 1024 * 1024;
 const MAX_DIMENSION: u32 = 8192;
 const MAX_PIXELS: u64 = 16_777_216;
 const MAX_DECODED_BYTES: usize = 64 * 1024 * 1024;
-const JPEG_QUALITY: u8 = 93;
+// Highest first. Finite quality ladder, never increases the per-image or Scene caps.
+const JPEG_QUALITIES: [u8; 6] = [93, 88, 82, 75, 68, 60];
 const MAX_SAMPLE_POINTS: usize = 8192;
 
 fn hex_hash(bytes: &[u8]) -> String {
@@ -63,7 +64,7 @@ fn encode_png(decoded: &DecodedImageV1) -> Result<Vec<u8>> {
     Ok(output)
 }
 
-fn encode_jpeg(decoded: &DecodedImageV1) -> Result<Vec<u8>> {
+fn encode_jpeg(decoded: &DecodedImageV1, quality: u8) -> Result<Vec<u8>> {
     if decoded.decoded_precision_bits != 8 {
         bail!("unsupported_jpeg_precision");
     }
@@ -77,7 +78,7 @@ fn encode_jpeg(decoded: &DecodedImageV1) -> Result<Vec<u8>> {
     let height = u16::try_from(decoded.decoded_height_px)
         .context("jpeg height over u16 range")?;
     let mut output = Vec::new();
-    JpegEncoder::new(&mut output, JPEG_QUALITY)
+    JpegEncoder::new(&mut output, quality)
         .encode(&decoded.samples, width, height, c)
         .context("new JPEG from decoded samples")?;
     Ok(output)
@@ -150,8 +151,20 @@ fn build_preview(
     if input.decoded_precision_bits != 8 {
         bail!("unsupported_source_high_precision");
     }
+    let mut accepted_jpeg_quality = None;
     let preview = match mime {
-        "image/jpeg" => encode_jpeg(&input)?,
+        "image/jpeg" => {
+            let mut fitting = None;
+            for quality in JPEG_QUALITIES {
+                let fresh = encode_jpeg(&input, quality)?;
+                if !fresh.is_empty() && fresh.len() <= MAX_PREVIEW_ENCODED_BYTES {
+                    accepted_jpeg_quality = Some(quality);
+                    fitting = Some(fresh);
+                    break;
+                }
+            }
+            fitting.ok_or_else(|| anyhow::anyhow!("preview_resource_byte_cap_exceeded"))?
+        },
         "image/png" => encode_png(&input)?,
         _ => bail!("unsupported_source_preview_mime"),
     };
@@ -177,7 +190,7 @@ fn build_preview(
     .map_err(|err| anyhow::anyhow!("{}", err.code))?;
     let delta = samples_difference(&input, &output)?;
     let preview_again = match mime {
-        "image/jpeg" => encode_jpeg(&input)?,
+        "image/jpeg" => encode_jpeg(&input, accepted_jpeg_quality.context("jpeg_quality_missing")?)?,
         "image/png" => encode_png(&input)?,
         _ => unreachable!(),
     };
@@ -193,6 +206,7 @@ fn build_preview(
         "derived_encoded_bytes": preview.len(),
         "source_mime": mime,
         "derived_mime": mime,
+        "jpeg_quality_used": accepted_jpeg_quality,
         "width_px": input.decoded_width_px,
         "height_px": input.decoded_height_px,
         "source_decoder": input.decoder_id,
@@ -306,7 +320,7 @@ fn main() -> Result<()> {
         "product_pub_bytes":raw.len(),
         "viewer_engine":"real_pub_viewer_open_pub_bundle",
         "decode_engine":"chaptera-image-decode-contract/strict_sha+limits",
-        "jpeg_encoder":"jpeg-encoder=0.7.1;quality=93",
+        "jpeg_encoder":"jpeg-encoder=0.7.1;quality_ladder=93,88,82,75,68,60",
         "png_encoder":"png=0.18.1;no_source_metadata",
         "contract_scope":"offline_experiment_not_product_or_browser",
         "fixed_limits":{
