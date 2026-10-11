@@ -50,17 +50,32 @@ jobs:
             source-rar2/vendor/producer-a/crates/pub-viewer/src/bin/sk1-compare-reader-text.rs
           cargo build --manifest-path source-rar2/vendor/producer-a/Cargo.toml \
             -p pub-viewer --bin corpus-reader-receipt --bin sk1-compare-reader-text
+      - uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 87a6733516ad6ffd1b6b97a3176f359bfeb60ca1
+          path: reference-t994
+          persist-credentials: false
       - name: Run exact 22-file public same-source comparison
         run: |
           .venv-sk1-997/bin/python experiments/cfb/cmp/pub-t-997/run.py \
             source-rar2 source-safe-t997 source-rar2/vendor/producer-a/target/debug
           .venv-sk1-997/bin/python experiments/cfb/cmp/pub-t-997/check_report.py \
             source-safe-t997/report.json source-rar2/tools/reader_corpus_manifest_v1.json
+      - name: Investigate raw Quill TEXT and ODG page roots of 4 fixed outliers
+        run: |
+          .venv-sk1-997/bin/python experiments/cfb/cmp/pub-t-997/diagnose_outliers.py \
+            source-rar2 source-rar2/vendor/producer-a/target/debug reference-t994 \
+            source-safe-t997/report.json source-safe-t997/outliers.json
+          .venv-sk1-997/bin/python experiments/cfb/cmp/pub-t-997/check_outliers.py \
+            source-safe-t997/outliers.json source-safe-t997/report.json
       - name: Upload numeric reports only, no PUB/ODG/text/source files
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: sk1-pub-t-997-public-same-input-results
-          path: source-safe-t997/report.json
+          path: |
+            source-safe-t997/report.json
+            source-safe-t997/outliers.json
           if-no-files-found: warn
           retention-days: 30
