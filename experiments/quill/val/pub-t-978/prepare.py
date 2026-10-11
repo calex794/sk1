@@ -100,6 +100,8 @@ def main():
                       "77 predeclared Story-offsets, 539 UTF16 control arms",
                       "count log")
         code=code.replace("961","978")
+        if name in ("run.py","check_report.py"):
+            code=once(code,"parent_t978_","parent_t961_","prior task link") if code.count("parent_t978_")==1 else code.replace("parent_t978_","parent_t961_")
         (here/name).write_text(code,encoding="utf-8")
     print("PUB-T-978 prepared strictly: T961 harness+77 SHA-pinned witnesses, 7 new code units")
 
