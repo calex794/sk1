@@ -565,6 +565,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec817d94d9efdeb2b70cf2",
       "code_path": "experiments/cfb/cmp/pub-t-999",
       "git_ref": "sk1/cfb-cmp-pub-t-999"
+    },
+    {
+      "key": "SK1-QUILL-VAL-PUB-T-998",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "VAL",
+      "task_id": "PUB-T-998",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f632a84beec81cdb360c2124c789a25",
+      "evidence_notion": "https://app.notion.com/p/3f632a84beec81498ea8c51e8b69ad54",
+      "code_path": "experiments/quill/val/pub-t-998",
+      "git_ref": "sk1/quill-val-pub-t-998"
     }
   ]
 }
