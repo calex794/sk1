@@ -17,18 +17,21 @@ fn main() -> Result<()> {
         Ok(model) => {
             let stories: Vec<_> = model.document.stories.iter()
                 .map(|story| json!({
-                    "story_id": format!("{:?}", story.id),
                     "utf16_units": story.text.encode_utf16().count(),
                     "scalars": story.text.chars().count()
                 })).collect();
             let runs: Vec<_> = model.paragraph_alignments.iter()
                 .map(|run| {
-                    let applicable = model.document.stories.iter()
-                        .find(|story| story.id == run.story_id)
+                    let associated_story = model.document.stories.iter()
+                        .find(|story| story.id == run.story_id);
+                    let applicable = associated_story
                         .map(|story| run.applies_to_story_text(&story.text))
                         .unwrap_or(false);
                     json!({
-                        "story_id": format!("{:?}", run.story_id),
+                        "story_utf16_units": associated_story
+                            .map(|story| story.text.encode_utf16().count()),
+                        "story_scalars": associated_story
+                            .map(|story| story.text.chars().count()),
                         "scalar_start": run.scalar_start,
                         "scalar_end": run.scalar_end,
                         "alignment": format!("{:?}", run.alignment),
