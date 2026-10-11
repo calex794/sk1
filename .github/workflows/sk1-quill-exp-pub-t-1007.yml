@@ -1,0 +1,85 @@
+name: SK1 QUILL VAL PUB-T-1007 two-step Writer equal-length replacement
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/exp/pub-t-1007/**'
+      - '.github/workflows/sk1-quill-exp-pub-t-1007.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-1007
+  cancel-in-progress: true
+
+jobs:
+  same-length-replacement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 experiment
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exact original T963 science comparator
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          path: reference-sk1
+          persist-credentials: false
+      - name: Checkout pinned upstream Reader Editor Writer
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Compile pinned Writer with only new study-specific probe tail
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          python3 experiments/quill/exp/pub-t-1007/prepare.py \
+            --reference reference-sk1 --writer source-rar2
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_1007_two_step
+      - name: Execute 3 SHA by 4 glyph by 2 independent Writer sequences
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/exp/pub-t-1007/run.py \
+            --rar2 source-rar2 --output results-pub-t-1007
+          status=$?
+          set -e
+          echo "$status" > run-status.txt
+      - name: Independently verify source-safe research receipts
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/exp/pub-t-1007/check_report.py results-pub-t-1007
+      - name: Upload exactly three source-safe JSON receipts
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-1007-single-unit-substitution
+          path: |
+            results-pub-t-1007/plan.json
+            results-pub-t-1007/records.json
+            results-pub-t-1007/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Require complete original-source admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat run-status.txt)" = 0
