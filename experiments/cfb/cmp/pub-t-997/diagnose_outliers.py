@@ -30,9 +30,9 @@ def run_cmd(argv,base):
 
 def quill_raw_words(data,pri,base):
     with base.olefile.OleFileIO(io.BytesIO(data)) as file:
-        if not file.exists(base.STREAM):
+        if not file.exists(pri.STREAM):
             return {"status":"NO_QUILL"}
-        quill=file.openstream(base.STREAM).read()
+        quill=file.openstream(pri.STREAM).read()
     try:
         descriptor=pri.one(pri.descriptors(quill),b"TEXT")
         _,_,off,n=descriptor
