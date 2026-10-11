@@ -1,0 +1,32 @@
+name: SK1-CFB-CMP-PUB-T-981 OfficeArt cross-format
+on:
+  push:
+    branches: [sk1/cfb-cmp-pub-t-981]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate task registry
+        run: python3 scripts/verify_registry.py
+      - name: Install CFB extraction
+        run: python3 -m pip install --disable-pip-version-check olefile==0.47
+      - name: Probe pinned real DOC XLS PPT PUB
+        run: python3 experiments/cfb/cmp/pub-t-981/run.py exp981-results
+      - name: Evidence gate
+        run: python3 experiments/cfb/cmp/pub-t-981/check_report.py exp981-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sk1-cfb-cmp-pub-t-981-metadata
+          path: |
+            exp981-results/report.json
+            exp981-results/records.json
+          retention-days: 30
+          if-no-files-found: warn
