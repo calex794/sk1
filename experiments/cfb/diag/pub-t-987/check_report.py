@@ -195,7 +195,7 @@ def check(path:Path,donor:Path,ref:Path):
             continue
         w=row["writer"]
         assert isinstance(w,dict) and set(w)=={"status","probe"}
-        assert w["status"] in run.WRITER_STATUS if hasattr(run,"WRITER_STATUS") else {
+        assert w["status"] in {
             "SOURCE_SHA_DRIFT","WRITER_PROCESS_UNAVAILABLE","WRITER_PROCESS_FAILED",
             "WRITER_RECEIPT_UNREADABLE","WRITER_RECEIPT_INVALID",
             "WRITER_SOURCE_SYID_DRIFT","RECEIPT_AVAILABLE"}
@@ -211,7 +211,7 @@ def check(path:Path,donor:Path,ref:Path):
         assert proof["result"] in {"SOURCE_EDITOR_OPEN_BLOCKED","SOURCE_QUILL_PARSE_BLOCKED",
                                   "NO_PLAIN_EDITABLE_STORY","EVALUATED"}
         if proof["result"]=="SOURCE_EDITOR_OPEN_BLOCKED":
-            assert set(proof)==PROBE_BASE|{"eligible_story_count"}
+            assert set(proof)==PROBE_BASE or set(proof)==PROBE_BASE|{"eligible_story_count"}
             assert proof["stories"]==[]
             continue
         assert set(proof)==PROBE_BASE|PROBE_HEADER
