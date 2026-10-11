@@ -21,12 +21,14 @@ jobs:
         run: python3 experiments/cfb/cmp/pub-t-981/run.py exp981-results
       - name: Evidence gate
         run: python3 experiments/cfb/cmp/pub-t-981/check_report.py exp981-results
+      - name: Independent source-safe OfficeArt evidence audit
+        run: python3 experiments/cfb/cmp/pub-t-981/audit_report.py exp981-results
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: success()
         with:
           name: sk1-cfb-cmp-pub-t-981-metadata
           path: |
             exp981-results/report.json
             exp981-results/records.json
           retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: error
