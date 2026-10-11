@@ -1,4 +1,4 @@
-// PUB-T-993: natural-original FA -> Writer-derived FE -> Writer-derived 0x100.
+// PUB-T-993: genuine natural-original 0x3F1 -> Writer-derived 0x3FF -> 0x401.
 // No direct mutation of the SYID header. Each +1 arises exclusively from
 // the unchanged upstream Writer in the inherited step() implementation.
 const NATURAL_SOURCE_SHA:&str=
