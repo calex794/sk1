@@ -1,0 +1,52 @@
+name: SK1 PUB-T-1001 natural STSH1 alignment-high-byte 21 source census
+on:
+  push:
+    branches: [sk1/quill-diag-pub-t-1001]
+    paths:
+      - experiments/registry.json
+      - experiments/quill/diag/pub-t-1001/**
+      - .github/workflows/sk1-quill-diag-pub-t-1001.yml
+permissions:
+  contents: read
+concurrency:
+  group: sk1-quill-diag-pub-t-1001
+  cancel-in-progress: true
+jobs:
+  source-pinned-census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Local identity and canonical task gate
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: b224a614af48c273b2d4bc0881793cf0217cc16d
+          path: source-rar2
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 87a6733516ad6ffd1b6b97a3176f359bfeb60ca1
+          path: reference-t994
+          persist-credentials: false
+      - name: Install pinned CFB container reader
+        run: |
+          python3 -m venv .venv-t1001
+          .venv-t1001/bin/pip install --quiet olefile==0.47
+      - name: Scan all 22 source identities, 21 semantic originals
+        run: |
+          .venv-t1001/bin/python experiments/quill/diag/pub-t-1001/run.py \
+            source-rar2 reference-t994 source-safe-t1001/report.json
+          python3 experiments/quill/diag/pub-t-1001/check_report.py source-safe-t1001/report.json
+      - name: Upload numeric and source SHA report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-1001-public-stsh1-alignment-census
+          path: source-safe-t1001/report.json
+          if-no-files-found: warn
+          retention-days: 30
