@@ -1,0 +1,66 @@
+name: SK1 PUB-T-997 RAR2 vs LibreOffice same-source 22 PUB
+on:
+  push:
+    branches: [sk1/pub-cmp-pub-t-997]
+    paths:
+      - experiments/registry.json
+      - experiments/pub/cmp/pub-t-997/**
+      - .github/workflows/sk1-pub-cmp-t-997.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - experiments/registry.json
+      - experiments/pub/cmp/pub-t-997/**
+      - .github/workflows/sk1-pub-cmp-t-997.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-pub-cmp-t-997
+  cancel-in-progress: true
+
+jobs:
+  paired-real-engine-compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 58
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: b224a614af48c273b2d4bc0881793cf0217cc16d
+          path: source-rar2
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install LibreOffice Draw and olefile (public test inputs only)
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-draw fonts-liberation >/dev/null
+          python3 -m venv .venv-sk1-997
+          .venv-sk1-997/bin/pip install --quiet olefile==0.47
+      - name: Compile actual RAR2 pub-viewer and disposable temporary text probe
+        run: |
+          cp experiments/pub/cmp/pub-t-997/sk1-compare-reader-text.rs \
+            source-rar2/vendor/producer-a/crates/pub-viewer/src/bin/sk1-compare-reader-text.rs
+          cargo build --manifest-path source-rar2/vendor/producer-a/Cargo.toml \
+            -p pub-viewer --bin corpus-reader-receipt --bin sk1-compare-reader-text
+      - name: Run exact 22-file public same-source comparison
+        run: |
+          .venv-sk1-997/bin/python experiments/pub/cmp/pub-t-997/run.py \
+            source-rar2 source-safe-t997 source-rar2/vendor/producer-a/target/debug
+          .venv-sk1-997/bin/python experiments/pub/cmp/pub-t-997/check_report.py \
+            source-safe-t997/report.json source-rar2/tools/reader_corpus_manifest_v1.json
+      - name: Upload numeric reports only, no PUB/ODG/text/source files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-997-public-same-input-results
+          path: source-safe-t997/report.json
+          if-no-files-found: warn
+          retention-days: 30
