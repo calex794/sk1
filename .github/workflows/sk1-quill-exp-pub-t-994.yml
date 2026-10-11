@@ -1,0 +1,51 @@
+name: SK1 PUB-T-994 LibreOffice STSH1 nonempty metamorphic import
+on:
+  push:
+    branches:
+      - sk1/quill-exp-pub-t-994
+    paths:
+      - experiments/registry.json
+      - experiments/quill/exp/pub-t-994/**
+      - .github/workflows/sk1-quill-exp-pub-t-994.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - experiments/registry.json
+      - experiments/quill/exp/pub-t-994/**
+      - .github/workflows/sk1-quill-exp-pub-t-994.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-exp-pub-t-994
+  cancel-in-progress: true
+
+jobs:
+  importer-metamorphic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify registered task identity
+        run: python3 scripts/verify_registry.py
+      - name: Install headless LibreOffice and isolated Python olefile dependency
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-draw fonts-liberation >/dev/null
+          python3 -m venv .venv-sk1-994
+          .venv-sk1-994/bin/pip install --quiet olefile==0.47
+      - name: Import two pinned external public PUBs and isolated byte controls
+        run: |
+          .venv-sk1-994/bin/python experiments/quill/exp/pub-t-994/run.py receipt-t994
+          .venv-sk1-994/bin/python experiments/quill/exp/pub-t-994/check_report.py receipt-t994/report.json
+      - name: Publish only numeric/source-safe JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-994-source-safe
+          path: receipt-t994/report.json
+          if-no-files-found: warn
+          retention-days: 30
