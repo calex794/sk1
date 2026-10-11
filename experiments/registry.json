@@ -625,6 +625,18 @@
       "evidence_notion": "https://app.notion.com/p/3f632a84beec81abb9bce40293d702ad",
       "code_path": "experiments/cfb/cmp/pub-t-1002",
       "git_ref": "sk1/cfb-img-pub-t-1002"
+    },
+    {
+      "key": "SK1-QUILL-EXP-PUB-T-1007",
+      "kind": "task",
+      "area": "QUILL",
+      "type": "EXP",
+      "task_id": "PUB-T-1007",
+      "state": "completed",
+      "task_notion": "https://app.notion.com/p/3f632a84beec81a6ac82f043e4ac9219",
+      "evidence_notion": "https://app.notion.com/p/3f632a84beec8141b389fcc43a5af904",
+      "code_path": "experiments/quill/exp/pub-t-1007",
+      "git_ref": "sk1/quill-exp-pub-t-1007"
     }
   ]
 }
