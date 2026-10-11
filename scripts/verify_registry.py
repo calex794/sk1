@@ -14,7 +14,7 @@ SCHEMA="sk1.experiment-registry.v1"
 LEGACY={f"SK1-EXP-{i:03d}" for i in range(1,6)}
 TASK_KEY=re.compile(r"^SK1-([A-Z][A-Z0-9]*)-(EXP|VAL|DIAG|CMP|BENCH)-(PUB-T-[1-9][0-9]*)$")
 NOTION_URL=re.compile(r"^https://app[.]notion[.]com/p/[a-f0-9]{32}$")
-AREA={"CFB","QUILL","VERSIONS"}
+AREA={"CFB","QUILL","VERSIONS","ARCH"}
 TYPES={"EXP","VAL","DIAG","CMP","BENCH"}
 REQUIRED={"key","kind","area","type","task_id","state",
           "task_notion","evidence_notion","code_path","git_ref"}
