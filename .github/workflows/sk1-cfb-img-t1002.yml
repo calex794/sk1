@@ -1,0 +1,63 @@
+name: SK1 PUB-T-1002 actual PNG-JPEG SafePreview candidate lab
+on:
+  push:
+    branches: [sk1/cfb-img-pub-t-1002]
+    paths:
+      - experiments/registry.json
+      - experiments/cfb/img/pub-t-1002/**
+      - .github/workflows/sk1-cfb-img-t1002.yml
+permissions:
+  contents: read
+concurrency:
+  group: sk1-cfb-img-t1002
+  cancel-in-progress: true
+jobs:
+  actual-viewer-preview-lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check task registry uniqueness
+        run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 5a745034afd002d968f96eda5cc17d816e621fef
+          path: product-rar2-readonly
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Build pinned existing strict decode contract with temporary laboratory example only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest=Path("product-rar2-readonly/crates/chaptera-image-decode-contract/Cargo.toml")
+          original=manifest.read_text()
+          assert original.count("[dev-dependencies]")==1
+          additions = "[dev-dependencies]\nanyhow = \"=1.0.100\"\npub-viewer = { path = \"../../vendor/producer-a/crates/pub-viewer\", features = [\"cmo-slot-compose\"] }\n"
+          manifest.write_text(original.replace("[dev-dependencies]\n", additions,1))
+          example=manifest.parent/"examples"/"sk1_pub_t1002.rs"
+          example.parent.mkdir(parents=True,exist_ok=True)
+          example.write_bytes(Path("experiments/cfb/img/pub-t-1002/lab.rs").read_bytes())
+          PY
+          cargo build --manifest-path product-rar2-readonly/Cargo.toml \
+            -p chaptera-image-decode-contract --example sk1_pub_t1002
+      - name: Physically decode and newly encode source images from seven exact public PUB
+        run: |
+          python3 experiments/cfb/img/pub-t-1002/run.py \
+            product-rar2-readonly \
+            product-rar2-readonly/target/debug/examples/sk1_pub_t1002 \
+            source-safe-t1002/report.json
+          python3 experiments/cfb/img/pub-t-1002/check_report.py \
+            source-safe-t1002/report.json
+      - name: Upload only numbers, SHA and bounded diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t1002-derived-preview-source-safe
+          path: source-safe-t1002/report.json
+          if-no-files-found: warn
+          retention-days: 30
