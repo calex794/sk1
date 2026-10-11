@@ -126,9 +126,22 @@ fn inspect_source(source:&[u8],expected_sha:&str)->Result<Value>{
     // Original source SHA is verified both by Python manifest intake and here.
     ensure!(sha256(source).to_string()==expected_sha,"source SHA drift");
     let source_hash=sha256(source);
-    let quill=pub_cfb::read_stream_reader(Cursor::new(source),pub_reader::QUILL_STREAM_PATH)?;
-    let catalog=pub_quill::parse_confirmed_story_catalog(
-       pub_core::StreamPath(pub_reader::QUILL_STREAM_PATH.into()),&quill)?;
+    let source_block=|code:&str| json!({
+        "schema":"sk1.quill-exp-pub-t-1019.source.v1",
+        "source_sha256":expected_sha,"source_bytes":source.len(),
+        "source_syid_header":Value::Null,"eligible_story_count":0,
+        "selected_story_count":0,"result":code,"stories":[],
+        "native_publisher_acceptance":"NOT_EVALUATED"
+    });
+    let quill=match pub_cfb::read_stream_reader(Cursor::new(source),pub_reader::QUILL_STREAM_PATH){
+        Ok(data)=>data,
+        Err(_)=>return Ok(source_block("SOURCE_QUILL_STREAM_BLOCKED"))
+    };
+    let catalog=match pub_quill::parse_confirmed_story_catalog(
+       pub_core::StreamPath(pub_reader::QUILL_STREAM_PATH.into()),&quill){
+        Ok(data)=>data,
+        Err(_)=>return Ok(source_block("SOURCE_QUILL_CATALOG_BLOCKED"))
+    };
     let header=catalog.syid.header.value;
     if let Some((_,expect))=PINNED_SOURCES.iter().find(|(sha,_)|*sha==expected_sha){
         ensure!(header==*expect,"T1007 header baseline drift");

@@ -95,7 +95,8 @@ def admit(row,binary):
           and result.get("source_bytes")==row["size"]
           and result.get("native_publisher_acceptance")=="NOT_EVALUATED"
           and result.get("result") in
-             {"EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED"}
+             {"EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED",
+          "SOURCE_QUILL_STREAM_BLOCKED","SOURCE_QUILL_CATALOG_BLOCKED"}
           and isinstance(result.get("stories"),list)
         ):
             report["reason"]="INVALID_RUST_RECEIPT"
@@ -273,7 +274,8 @@ def main():
        "summary":summarize(admitted),"records":admitted}
     (out/"report.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
     all_sources_ok=len(admitted)==EXPECTED_SOURCE_COUNT and all(
-        row["status"] in {"EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED"}
+        row["status"] in {"EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED",
+          "SOURCE_QUILL_STREAM_BLOCKED","SOURCE_QUILL_CATALOG_BLOCKED"}
         for row in admitted)
     full=all_sources_ok and result["summary"]["variant_cells"]>0 \
          and result["summary"]["baseline_t1007_all_pass"]

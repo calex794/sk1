@@ -153,7 +153,8 @@ def audit(folder):
         assert set(row)==RECORD
         assert row["status"] in {
             "EVALUATED","NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED",
-            "NOT_EVALUATED"}
+            "NOT_EVALUATED","SOURCE_QUILL_STREAM_BLOCKED",
+            "SOURCE_QUILL_CATALOG_BLOCKED"}
         assert type(row["source_type"]) is str and len(row["source_type"])>0
         if row["status"]=="NOT_EVALUATED":
             assert type(row["reason"]) is str
@@ -165,13 +166,20 @@ def audit(folder):
             assert row["stories"]==[]
             continue
         assert row["status"]==row["reason"]
+        if row["status"] in {"SOURCE_QUILL_STREAM_BLOCKED","SOURCE_QUILL_CATALOG_BLOCKED"}:
+            assert row["source_syid_header"] is None
+            assert row["eligible_story_count"]==0
+            assert row["selected_story_count"]==0
+            assert row["stories"]==[]
+            continue
         nonneg(row["source_syid_header"],2**32-1)
         nonneg(row["eligible_story_count"],100000)
         nonneg(row["selected_story_count"],2)
         assert row["selected_story_count"]==len(row["stories"])
         assert row["selected_story_count"]==min(2,row["eligible_story_count"])
         assert row["status"]=="EVALUATED" if row["stories"] else \
-            row["status"] in {"NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED"}
+            row["status"] in {"NO_ELIGIBLE_STORY","SOURCE_EDITOR_OPEN_BLOCKED",
+                "SOURCE_QUILL_STREAM_BLOCKED","SOURCE_QUILL_CATALOG_BLOCKED"}
         expected={i["source_syid_header"] for sha,i in RUN.BASELINE.items()
                   if sha==row["source_sha256"]}
         if expected:assert row["source_syid_header"]==expected.pop()
