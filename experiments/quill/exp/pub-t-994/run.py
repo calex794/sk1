@@ -6,6 +6,7 @@ Unsupported or insensitive controls are reported, never promoted to a law.
 """
 from __future__ import annotations
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -270,7 +271,7 @@ def main():
             try:
                 original=get_source(spec)
                 row["input_sha256"]=sha(original)
-                with olefile.OleFileIO(original) as doc:
+                with olefile.OleFileIO(io.BytesIO(original)) as doc:
                     if not doc.exists(STREAM):raise ValueError("quill_missing")
                     q=doc.openstream(STREAM).read()
                 arms,stats=prepare_mutations(q,spec["natural_high"])
