@@ -84,7 +84,14 @@ def main():
                                    capture_output=True,timeout=240,check=False)
             # No stderr/stdout from untrusted source is ever published.
             if process.returncode or not json_file.is_file():
-                raise RuntimeError(f"RUST_LAB_FAILED_ID_{id}")
+                # Allowlist only fixed diagnostic codes, never untrusted stderr text or file paths.
+                known = ("negative_or_alpha_positive_contract_failed",
+                         "original_pub_sha256_mismatch",
+                         "real RAR2 Viewer source geometry",
+                         "original PUB SHA mismatch")
+                stderr = process.stderr.decode("utf-8",errors="replace")[-4000:]
+                cause = next((s.replace(" ","_") for s in known if s in stderr), "unclassified")
+                raise RuntimeError(f"RUST_LAB_FAILED_ID_{id}_{cause}")
             parsed=json.loads(json_file.read_text())
             if parsed["schema"]!="sk1-pub-t1002-image-preview-candidate.v1":
                 raise RuntimeError("INVALID_EXPERIMENT_RECEIPT")
