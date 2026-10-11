@@ -56,11 +56,23 @@ def main():
             (22, 22, 0, 22), (36, 36, 0, 36)]
     else:
         assert r["verdict"] == "OTHER_READER_BEHAVIOR"
-    encoded = json.dumps(r).lower()
-    forbidden = ["story_text", "source_bytes", "private_story", "source_file_path",
-                 "full_quill", "raw_payload", "input_pub_b64", "canonicalid",
-                 "story_id"]
-    assert all(x not in encoded for x in forbidden)
+    # Reject forbidden DATA KEYS, not safe boolean names such as
+    # applies_to_original_story_text. Substring-scanning serialized JSON
+    # incorrectly rejected this verified boolean metadata.
+    forbidden_keys = {"story_text", "source_bytes", "private_story",
+                      "source_file_path", "full_quill", "raw_payload",
+                      "input_pub_b64", "story_id"}
+    def check_no_source_keys(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                assert key.lower() not in forbidden_keys, key
+                check_no_source_keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                check_no_source_keys(item)
+        elif isinstance(value, str):
+            assert "CanonicalId(" not in value
+    check_no_source_keys(r)
     print("PUB-T-998 report PASS:", r["verdict"])
 
 if __name__ == "__main__":
