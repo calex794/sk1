@@ -64,7 +64,9 @@ def count_summary(records):
                         "expected_raw":c["expected_changed_cycle_raw_bytes"]
                     })
     return {
-        "source_status":dict(sorted(states.items())) if False else dict(sorted((k,v) for k,v in counters.items() if k in {"EVALUATED","SOURCE_PROBE_UNAVAILABLE"})),
+        "source_status":dict(sorted((k,v) for k,v in counters.items() if k in {
+            "EVALUATED","SOURCE_PROBE_UNAVAILABLE","SOURCE_EDITOR_OPEN_BLOCKED",
+            "NO_ELIGIBLE_STORIES"})),
         "counts":dict(sorted(counters.items())),
         "finished_cycle_distribution":dict(sorted(states.items())),
         "first_writer_outcomes":dict(sorted(first_status.items())),
