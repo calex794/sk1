@@ -1,0 +1,35 @@
+name: PUB-T-980 Publisher public forum access
+on:
+  push:
+    branches:
+      - sk1/arch-exp-pub-t-980
+    paths:
+      - 'experiments/arch/exp/pub-t-980/**'
+      - 'experiments/registry.json'
+      - '.github/workflows/pub-t-980-forum.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pub-t-980-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Notion task registry
+        run: python3 scripts/verify_registry.py
+      - name: Probe public paths with robots gate
+        run: python3 experiments/arch/exp/pub-t-980/probe.py
+      - name: Upload metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pub-t-980-access-metadata
+          path: experiment-results/forum_access.json
+          if-no-files-found: warn
+          retention-days: 30
