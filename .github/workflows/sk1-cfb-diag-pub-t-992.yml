@@ -1,0 +1,158 @@
+name: SK1 CFB DIAG PUB-T-992 29 original training PUB high SYID
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/cfb/diag/pub-t-992/**'
+      - '.github/workflows/sk1-cfb-diag-pub-t-992.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sk1-cfb-diag-pub-t-992
+  cancel-in-progress: true
+
+jobs:
+  frozen-microsoftpress-natural-syid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated current SK1 registered experiment
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout unchanged Reader Writer and frozen 29-source manifest
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+
+      - name: Checkout exact prior 625 PUB for SHA overlap exclusion
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/lalamu
+          ref: 87094c23e2a9eaa2aa9e95d72ec52f72ef109f11
+          path: original-lalamu-625
+          sparse-checkout: |
+            pub-corpus/corpus
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+
+      - name: Checkout frozen original Quill SYID scanner T987
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: fa714fe958999325649430dad53c10edac42246a
+          path: reference-987
+          persist-credentials: false
+
+      - name: Checkout frozen real Writer science T984
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 14ac75ae0346b3bdbeeada110e1f463dda6cbb27
+          path: reference-984
+          persist-credentials: false
+
+      - name: Checkout frozen T963 Writer and CFB checkers
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          path: reference-963
+          persist-credentials: false
+
+      - name: Checkout frozen T971 source control
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: cd38c8d6a545737f9f99821076340505db5e149c
+          path: reference-971
+          persist-credentials: false
+
+      - name: Checkout independently successful T991 Writer receipt validator
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 42fa771a4640207d2d615d6f09f6a3bbd4fc6d6c
+          path: reference-991-science
+          persist-credentials: false
+
+      - name: Retrieve pinned prior T991 exact 27 source-safe SHA receipts
+        uses: actions/download-artifact@v4
+        with:
+          name: sk1-pub-t-991-original-external-fe-ff-safe
+          path: reference-991-safe
+          github-token: ${{ github.token }}
+          repository: calex794/sk1
+          run-id: 38133589540
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+
+      - name: Check original pins and compile inherited Quill and genuine Writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_registry.py
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          test "$(git -C original-lalamu-625 rev-parse HEAD)" = 87094c23e2a9eaa2aa9e95d72ec52f72ef109f11
+          test "$(git -C original-lalamu-625 rev-parse HEAD:pub-corpus/corpus/native/unclassified)" = 8146fa9fdd2f577ebe02bc7205a61bb14e20d3e7
+          test "$(git -C reference-987 rev-parse HEAD)" = fa714fe958999325649430dad53c10edac42246a
+          test "$(git -C reference-984 rev-parse HEAD)" = 14ac75ae0346b3bdbeeada110e1f463dda6cbb27
+          test "$(git -C reference-963 rev-parse HEAD)" = 2caeec283312b0865054ae6f5f93fc9ac1c76b9d
+          test "$(git -C reference-971 rev-parse HEAD)" = cd38c8d6a545737f9f99821076340505db5e149c
+          test "$(git -C reference-991-science rev-parse HEAD)" = 42fa771a4640207d2d615d6f09f6a3bbd4fc6d6c
+          python3 -m py_compile \
+            experiments/cfb/diag/pub-t-992/prepare.py \
+            experiments/cfb/diag/pub-t-992/run.py \
+            experiments/cfb/diag/pub-t-992/check_report.py
+          python3 experiments/cfb/diag/pub-t-992/prepare.py \
+            --ref-987 reference-987 --ref-984 reference-984 \
+            --ref-963 reference-963 --ref-971 reference-971
+          cp experiments/cfb/diag/pub-t-992/derived_census.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_992_original_training_census.rs
+          cp reference-984/experiments/cfb/val/pub-t-984/real_inverse.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_984_inverse_cfb.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_992_original_training_census \
+            --example sk1_pub_t_984_inverse_cfb
+
+      - name: Fetch four pinned MicrosoftPress training ZIPs and inspect original SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/diag/pub-t-992/run.py \
+            --rar2 source-rar2 --donor original-lalamu-625 \
+            --ref-987 reference-987 --ref-991-safe reference-991-safe \
+            --out results-pub-t-992
+
+      - name: Independent 33/29 SHA and natural high-SYID plus true Writer receipts
+        id: independent
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/cfb/diag/pub-t-992/check_report.py \
+            results-pub-t-992 source-rar2 original-lalamu-625 \
+            reference-987 reference-991-safe reference-991-science \
+            reference-963
+
+      - name: Publish only source-safe plan records report JSON (no PUB or ZIP)
+        if: steps.independent.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-992-original-training-high-syid-source-safe
+          path: |
+            results-pub-t-992/plan.json
+            results-pub-t-992/records.json
+            results-pub-t-992/report.json
+          if-no-files-found: error
+          retention-days: 30
