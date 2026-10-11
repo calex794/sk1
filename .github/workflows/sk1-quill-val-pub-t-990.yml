@@ -1,0 +1,91 @@
+name: SK1 QUILL VAL PUB-T-990 disjoint cross-version BTEC FDPC
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/val/pub-t-990/**'
+      - '.github/workflows/sk1-quill-val-pub-t-990.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-val-pub-t-990
+  cancel-in-progress: true
+
+jobs:
+  pinned-cross-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 laboratory
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout pinned read-only original rar2
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - name: Checkout pinned historic 47-SHA selection for exclusion only
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: cd38c8d6a545737f9f99821076340505db5e149c
+          path: historical-t971
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install fixed CFB reader
+        run: python3 -m pip install --disable-pip-version-check olefile==0.47
+      - name: Verify pinned Reader and build source-only BTEC join inspector
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          test "$(git -C historical-t971 rev-parse HEAD)" = cd38c8d6a545737f9f99821076340505db5e149c
+          python3 scripts/verify_registry.py
+          python3 -m py_compile experiments/quill/val/pub-t-990/run.py experiments/quill/val/pub-t-990/check_report.py
+          cp experiments/quill/val/pub-t-990/cross_version_btec.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_990_cross_version.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_990_cross_version
+      - name: Evaluate all 66 SHA1-pinned public PUB and compare 0x22 versus 0x2C
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/val/pub-t-990/run.py \
+            --historic-t971 historical-t971 \
+            --rar2 source-rar2 \
+            --output results-t990
+          status=$?
+          set -e
+          echo "$status" > science-exit-code.txt
+      - name: Independently reject unsafe or inconsistent receipt fields
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/val/pub-t-990/check_report.py results-t990
+      - name: Upload independently checked source-safe numbers ONLY
+        if: steps.receipt.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-990-cross-version-btec-numeric-only
+          path: |
+            results-t990/plan.json
+            results-t990/records.json
+            results-t990/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Enforce 0x22 and 0x2C independent scientific admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat science-exit-code.txt)" = 0

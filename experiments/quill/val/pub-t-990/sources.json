@@ -1,0 +1,417 @@
+{
+  "schema": "sk1.pub-cross-version-btec.source-manifest.v1",
+  "repos": {
+    "pronom": {
+      "repo": "digital-preservation/pronom-research-week",
+      "commit": "10d3c0afea0863a7c0acaa01344cb576e9b1ac18"
+    },
+    "poi": {
+      "repo": "apache/poi",
+      "commit": "c85c6918858ea279de2c33df70518c105064df41"
+    },
+    "libmspub": {
+      "repo": "fosnola/libmspub-test",
+      "commit": "33d8f78db8b8b319098c3d5ba3ad3e952369b323"
+    }
+  },
+  "expected_sources": 66,
+  "expected_bytes": 6176540,
+  "source_rows": [
+    {
+      "group": "libmspub",
+      "path": "testset/10.0/metadata.pub",
+      "size": 32768,
+      "git_blob_sha1": "c487fceb6e038b713ce52e5ffeb12a23610d0c66"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/10.0/tables.pub",
+      "size": 37376,
+      "git_blob_sha1": "b311082113f399a3ff94f18fdddc1f7094ab3736"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/11.0/metadata.pub",
+      "size": 32768,
+      "git_blob_sha1": "5992bbd0c327aa4d4f0cbd221a698d6027b26d47"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/11.0/table-merged.pub",
+      "size": 37376,
+      "git_blob_sha1": "f27efefbceff7e770dda1c01f19f2b825897e1d9"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/11.0/tables.pub",
+      "size": 37376,
+      "git_blob_sha1": "150efc5ed71356cfe6ca022da5e8d545799c5d32"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/12.0/fonts.pub",
+      "size": 1051136,
+      "git_blob_sha1": "fb02e707b238d8109da718f02d96eb31d95557cf"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/12.0/REG-TST2-pub97-to-pub2007-with-pub2007.pub",
+      "size": 272896,
+      "git_blob_sha1": "d8994853c0a196af9f88112d9f7309db3a1d10aa"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/12.0/REG-TXT1-pub97-to-pub2007-with-pub2007.pub",
+      "size": 64000,
+      "git_blob_sha1": "43eaebccbb98cb07f1ae25848d14287e8231a4a4"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/14.0/metadata.pub",
+      "size": 76288,
+      "git_blob_sha1": "93620ce68f411273dcf7aecadb884e50a965318e"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/14.0/REG-TST2-pub2010.pub",
+      "size": 281088,
+      "git_blob_sha1": "1ed7cf242c7f3995d6eb913c5a0393d60f8e1e34"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/14.0/REG-TXT1-pub2010.pub",
+      "size": 72704,
+      "git_blob_sha1": "6bdb077a90a5a39b6615dc11134b6802c410d4c8"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.0/essai97.pub",
+      "size": 36864,
+      "git_blob_sha1": "410029853054b59b672d524a234dafc3de94ed72"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.0/test97.pub",
+      "size": 54784,
+      "git_blob_sha1": "96a113af6afcbe5049f769c18c9dabbef9df9cd5"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.0/wizard97.pub",
+      "size": 50176,
+      "git_blob_sha1": "5d4128ddcb21090f7a835b980821516dc15d2d82"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.5/essai98.pub",
+      "size": 179200,
+      "git_blob_sha1": "636ddb69d2d28f0224e1e5ef6202a33f1e594b59"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.5/pub98.t2.pub",
+      "size": 308736,
+      "git_blob_sha1": "fb685ee32c31bc288f57871902b0e3fcb7dc0653"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.5/pub98t1.pub",
+      "size": 109568,
+      "git_blob_sha1": "1fad421e5359a01f135320e01dab824cd57d625d"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/8.5/wizard98.pub",
+      "size": 284672,
+      "git_blob_sha1": "f0fc923556051f6d2695d9ba520c23fd911e52f4"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/9.0/langs.pub",
+      "size": 19968,
+      "git_blob_sha1": "30e60126e86a108cbaafe1b184b195d226bc7850"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/9.0/text-format.pub",
+      "size": 21504,
+      "git_blob_sha1": "ad9095b53fa6bcc9db262679abecd71f09ebced1"
+    },
+    {
+      "group": "libmspub",
+      "path": "testset/9.0/text-style.pub",
+      "size": 20480,
+      "git_blob_sha1": "277a9e695b2151be33a1d4409ade8ce5e8947b77"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/51318.pub",
+      "size": 88576,
+      "git_blob_sha1": "728811c92dff5694520e56b6c020533b29d5295d"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/60685.pub",
+      "size": 119296,
+      "git_blob_sha1": "37d3dce70e1786e948edd5592527f90be1fae2ff"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample_2010.pub",
+      "size": 72704,
+      "git_blob_sha1": "ace1540716820640be5c67d85db6b70f48fbc0d4"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample.pub",
+      "size": 72192,
+      "git_blob_sha1": "b870168319048c9e8631c2338eb937e6f8f62b5b"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample2_2010.pub",
+      "size": 73216,
+      "git_blob_sha1": "74f4566056a39ee880c847b5dd4b8234762a9489"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample2.pub",
+      "size": 72704,
+      "git_blob_sha1": "610362c471b81bac36e46166ae98d5f3033a7e5f"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample2000.pub",
+      "size": 61440,
+      "git_blob_sha1": "2c6174e5e89235f08a3e5883c785c4951728d855"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample3_2010.pub",
+      "size": 72704,
+      "git_blob_sha1": "d2982c06bbb6e228951781f23d56ea5928893d2b"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample3.pub",
+      "size": 72192,
+      "git_blob_sha1": "4f19bec93d25f3d80501490dd108abef4f09b6cb"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample4_2010.pub",
+      "size": 72704,
+      "git_blob_sha1": "dd6c25b173680d33678ce1bba7a0be5fef3910f5"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample4.pub",
+      "size": 72192,
+      "git_blob_sha1": "445df85f092970c36d4b3003d375331a707d6b3c"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Sample98.pub",
+      "size": 61440,
+      "git_blob_sha1": "8adffda77aefed96e3afda319e2698d43dd478cb"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/SampleBrochure.pub",
+      "size": 161792,
+      "git_blob_sha1": "00deec14dc6cff6d8a47b120d6d84e7e20c72166"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/SampleNewsletter.pub",
+      "size": 291840,
+      "git_blob_sha1": "94900925af5832c493784f3cb51563f838a64df8"
+    },
+    {
+      "group": "poi",
+      "path": "test-data/publisher/Simple.pub",
+      "size": 65536,
+      "git_blob_sha1": "2397b9d01cfa159de2f73cf5c990d9698eb69567"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2000-Sample.pub",
+      "size": 19968,
+      "git_blob_sha1": "967c7efa30770f9b0001f9879e401e0ed305444c"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2000-Sample98.pub",
+      "size": 19456,
+      "git_blob_sha1": "873dc0c3602a1fb2cb60db74dfae175298519392"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2000-SampleTemplate.pub",
+      "size": 19968,
+      "git_blob_sha1": "b7879c1f9327dfd6139aff3c9f486b1657bfe187"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2002.PUB",
+      "size": 28672,
+      "git_blob_sha1": "2a94f0f7777b4137a7dd89a3140b2d35d45522be"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MsPublisher2003-Sample.pub",
+      "size": 34816,
+      "git_blob_sha1": "78c6c0982312eb7b56845dd5281100fddbc7b8ae"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MsPublisher2003-Sample2000.pub",
+      "size": 28672,
+      "git_blob_sha1": "b258fd5ccc6f58636b8f6c697f659ad5f8c70481"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MsPublisher2003-Sample98.pub",
+      "size": 28160,
+      "git_blob_sha1": "ba03427fc97dc7967b41482660b0457e1ea9f874"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MsPublisher2003-SampleTemplate.pub",
+      "size": 34816,
+      "git_blob_sha1": "8fdbf9018e69947f6fdb928fd1eee251ec5ccd6e"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2007-Sample.pub",
+      "size": 70656,
+      "git_blob_sha1": "a7417f6398749285202b0f64553fa40d56af599b"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2007-Sample2000.pub",
+      "size": 61952,
+      "git_blob_sha1": "6d825ec4f801537da50d03760bc3e896b2a1c3ab"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2007-Sample98.pub",
+      "size": 61952,
+      "git_blob_sha1": "e67c4b3fa938dfdf5a09ddcddf40487edaf718f6"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2007-SampleTemplate.pub",
+      "size": 70656,
+      "git_blob_sha1": "1c94f5a5a7661586832ee7bc454ad77e0b8ea331"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2010-Sample.pub",
+      "size": 96768,
+      "git_blob_sha1": "47405426516caa811dc4c48b2b2d553aa072bfe5"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2010-Sample2000.pub",
+      "size": 81920,
+      "git_blob_sha1": "a25d1f20e188333a55cf15e720eaf41a49e12e01"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2010-Sample98.pub",
+      "size": 81920,
+      "git_blob_sha1": "c91134cd9a9890b6b4fb0b4b6adcc33b479ff1c6"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2010-SampleTemplate.pub",
+      "size": 96768,
+      "git_blob_sha1": "5fa98a78bdd8e550a8ad912972eafa05aa9940bb"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2013-Sample.pub",
+      "size": 98304,
+      "git_blob_sha1": "e6f1624f435762ed0e620ad92ac691c03b94492a"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2013-Sample2000.pub",
+      "size": 81920,
+      "git_blob_sha1": "3ac34c6ef1f4130488263963f5eb096c9de7e765"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2013-Sample98.pub",
+      "size": 81920,
+      "git_blob_sha1": "abc77d974d5865bd1207bc0ed68f40bbc3fbd153"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher2013-SampleTemplate.pub",
+      "size": 98304,
+      "git_blob_sha1": "4ba86adc46b07037b67f15925388d6ae642c276b"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher365-Sample.pub",
+      "size": 97280,
+      "git_blob_sha1": "35082b9700c334fcd4e04d5550edc56f6b5c01b1"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher365-Sample2000.pub",
+      "size": 81408,
+      "git_blob_sha1": "8a4e0f396be4527e0fd8f114dbc8d0919da5440d"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher365-Sample98.pub",
+      "size": 81408,
+      "git_blob_sha1": "c9df8c6853ec49b55ab487afda1978d608e0ffa5"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher365-SampleTemplate.pub",
+      "size": 97792,
+      "git_blob_sha1": "224c426de5e49592dfd2d408fdcb0f96f6637fae"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher95.PUB",
+      "size": 5632,
+      "git_blob_sha1": "e42452683bdd70027761f6568cd1fde4c983f3bf"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher97.pub",
+      "size": 15872,
+      "git_blob_sha1": "45f710c2f603982a3e3f18e05f2fde29d3bc1ac2"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher98-Sample.pub",
+      "size": 19456,
+      "git_blob_sha1": "d9994b52b52a4da1dc3656798eab29f19be658da"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisher98-SampleTemplate.pub",
+      "size": 20480,
+      "git_blob_sha1": "a0d62932e35b8d13314c2d641e45b34f16a8bdc5"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisherv1.PUB",
+      "size": 22812,
+      "git_blob_sha1": "1725fa47a7a2cf18eb58276ec1b3cdb920562ca7"
+    },
+    {
+      "group": "pronom",
+      "path": "MicrosoftPublisher/Sample Files/MSPublisherv2.PUB",
+      "size": 24576,
+      "git_blob_sha1": "378f5af8b007eb96104643ed240f86e207ce9eec"
+    }
+  ]
+}
