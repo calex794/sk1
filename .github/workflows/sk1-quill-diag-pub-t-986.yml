@@ -1,0 +1,90 @@
+name: SK1 QUILL DIAG PUB-T-986 physical BTEC targets at FDPC equal-style seams
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'experiments/quill/diag/pub-t-986/**'
+      - '.github/workflows/sk1-quill-diag-pub-t-986.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sk1-quill-diag-pub-t-986
+  cancel-in-progress: true
+
+jobs:
+  original-wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout isolated SK1 study
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exact pinned original Reader and CFB
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: 703808408fd919e564a90cdc236e81db3c04af8b
+          path: source-rar2
+          persist-credentials: false
+      - name: Checkout immutable historical 47-SHA selector (not Writer)
+        uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: cd38c8d6a545737f9f99821076340505db5e149c
+          path: historical-t971
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Verify exact provenance and build source-only Quill analyzer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source-rar2 rev-parse HEAD)" = 703808408fd919e564a90cdc236e81db3c04af8b
+          test "$(git -C historical-t971 rev-parse HEAD)" = cd38c8d6a545737f9f99821076340505db5e149c
+          python3 scripts/verify_registry.py
+          python3 -m py_compile experiments/quill/diag/pub-t-986/run.py \
+            experiments/quill/diag/pub-t-986/check_report.py
+          cp experiments/quill/diag/pub-t-986/btec_fdpc_join.rs \
+            source-rar2/tools/native-pub-candidate-cli/examples/sk1_pub_t_986_cr_fd.rs
+          cargo build --release --quiet \
+            --manifest-path source-rar2/tools/native-pub-candidate-cli/Cargo.toml \
+            --example sk1_pub_t_986_cr_fd
+      - name: Analyze physical BTEC references to equal-style FDPC page seams on pinned original PUB
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python3 experiments/quill/diag/pub-t-986/run.py \
+            --historic-t971 historical-t971 \
+            --rar2 source-rar2 \
+            --output results-t986
+          status=$?
+          set -e
+          echo "$status" > science-exit-code.txt
+      - name: Strict independently reconstructed safe receipt validation
+        id: validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 experiments/quill/diag/pub-t-986/check_report.py results-t986
+      - name: Publish ONLY verified numerical source-safe receipts
+        if: steps.validator.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-986-btec-fdpc-join-source-safe
+          path: |
+            results-t986/plan.json
+            results-t986/records.json
+            results-t986/report.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Ensure enough external PUB for bounded evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat science-exit-code.txt)" = 0
