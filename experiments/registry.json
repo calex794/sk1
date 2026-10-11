@@ -591,15 +591,15 @@
       "git_ref": "sk1/cfb-cmp-pub-t-1000"
     },
     {
-      "key": "SK1-CFB-IMG-PUB-T-1002",
+      "key": "SK1-CFB-CMP-PUB-T-1002",
       "kind": "task",
       "area": "CFB",
-      "type": "IMG",
+      "type": "CMP",
       "task_id": "PUB-T-1002",
       "state": "claimed",
       "task_notion": "https://app.notion.com/p/3f632a84beec811e8bb7ee9ba2201981",
       "evidence_notion": null,
-      "code_path": "experiments/cfb/img/pub-t-1002",
+      "code_path": "experiments/cfb/cmp/pub-t-1002",
       "git_ref": "sk1/cfb-img-pub-t-1002"
     }
   ]

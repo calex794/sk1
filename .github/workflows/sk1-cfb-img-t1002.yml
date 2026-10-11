@@ -4,7 +4,7 @@ on:
     branches: [sk1/cfb-img-pub-t-1002]
     paths:
       - experiments/registry.json
-      - experiments/cfb/img/pub-t-1002/**
+      - experiments/cfb/cmp/pub-t-1002/**
       - .github/workflows/sk1-cfb-img-t1002.yml
 permissions:
   contents: read
@@ -41,17 +41,17 @@ jobs:
           manifest.write_text(original.replace("[dev-dependencies]\n", additions,1))
           example=manifest.parent/"examples"/"sk1_pub_t1002.rs"
           example.parent.mkdir(parents=True,exist_ok=True)
-          example.write_bytes(Path("experiments/cfb/img/pub-t-1002/lab.rs").read_bytes())
+          example.write_bytes(Path("experiments/cfb/cmp/pub-t-1002/lab.rs").read_bytes())
           PY
           cargo build --manifest-path product-rar2-readonly/Cargo.toml \
             -p chaptera-image-decode-contract --example sk1_pub_t1002
       - name: Physically decode and newly encode source images from seven exact public PUB
         run: |
-          python3 experiments/cfb/img/pub-t-1002/run.py \
+          python3 experiments/cfb/cmp/pub-t-1002/run.py \
             product-rar2-readonly \
             product-rar2-readonly/target/debug/examples/sk1_pub_t1002 \
             source-safe-t1002/report.json
-          python3 experiments/cfb/img/pub-t-1002/check_report.py \
+          python3 experiments/cfb/cmp/pub-t-1002/check_report.py \
             source-safe-t1002/report.json
       - name: Upload only numbers, SHA and bounded diagnostics
         if: always()
