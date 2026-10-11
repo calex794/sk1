@@ -94,7 +94,7 @@ def load(path,n,blobsha):
  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"SK1-PUB-T-981"}),timeout=25) as r:
   if r.status!=200 or r.geturl()!=url:raise ValueError("source redirect")
   data=r.read(500001)
- if len(data)!=n or hashlib.sha1(b"blob "+str(n).encode()+b"\\0"+data).hexdigest()!=blobsha:
+ if len(data)!=n or hashlib.sha1(b"blob "+str(n).encode()+b"\0"+data).hexdigest()!=blobsha:
   raise ValueError("source drift")
  if data[:8]!=bytes.fromhex("d0cf11e0a1b11ae1"):raise ValueError("non CFB")
  return data
@@ -135,7 +135,7 @@ def main(out):
  pair=[{"left":a,"right":b,"shared_types":sorted(byfmt[a]&byfmt[b]),"shared_fopt_ids":sorted(byids[a]&byids[b],key=int)} for i,a in enumerate(labels) for b in labels[i+1:]]
  result={"schema":"sk1.cfb.cmp.pub-t-981.v1","apache_poi_commit":REV,"sources":sources,"source_count":len(sources),"sha_verified_count":sum(x["status"]=="SHA_VERIFIED_AND_SCANNED" for x in sources),"pairwise":pair,"exact_record_cross_format":[{"sha256_record":h,"formats":sorted(fmts)} for h,fmts in byhash.items() if len(fmts)>=2],"limitations":"DOC/PPT/PUB stream-carved grammar-validated root; XLS BIFF EB/EC plus contiguous Continue; no Microsoft Publisher native acceptance"}
  out.mkdir(parents=True,exist_ok=True)
- (out/"report.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\\n")
- (out/"records.json").write_text(json.dumps({"schema":"sk1.cfb.cmp.pub-t-981.records.v1","records":allrecords},indent=2,sort_keys=True)+"\\n")
+ (out/"report.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+ (out/"records.json").write_text(json.dumps({"schema":"sk1.cfb.cmp.pub-t-981.records.v1","records":allrecords},indent=2,sort_keys=True)+"\n")
  print("record metadata",len(allrecords))
 if __name__=="__main__":main(Path(sys.argv[1]))
