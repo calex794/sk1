@@ -139,7 +139,9 @@ def main():
        "source_bytes":4869956,
        "candidate_status":image22[0]["status"],
        "derived_new_encoded_bytes":image22[0].get("derived_encoded_bytes"),
+       "jpeg_quality_used":image22[0].get("jpeg_quality_used"),
        "sampled_mean_abs_channel_delta":image22[0].get("pixel_comparison",{}).get("sampled_mean_abs_channel_delta"),
+       "sampled_changed_pixel_fraction_threshold12":image22[0].get("pixel_comparison",{}).get("sampled_changed_pixel_fraction_threshold12"),
        "original_never_delivered_to_browser":True
     }
     # Emit only the source-safe numerical receipt before an acceptance error so
