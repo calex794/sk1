@@ -64,7 +64,7 @@ def check(path:Path,ref:Path):
         "offset_policy","inverse_orders","native_publisher_acceptance","raw_pub_output_authorized"}
     assert plan["schema"]=="sk1.cfb-val-pub-t-984.plan.v1"
     assert plan["rar2_pin"]=="703808408fd919e564a90cdc236e81db3c04af8b"
-    assert plan["source_selector_pin"]=="69989902bfdc87fac1aeb57ccb6a1f78872831fd"
+    assert plan["source_selector_pin"]=="cd38c8d6a545737f9f99821076340505db5e149c"
     assert plan["physical_inverse_pin"]=="2caeec283312b0865054ae6f5f93fc9ac1c76b9d"
     assert plan["reference_t971_original_zip_sha256"]=="055c1ec20ebfcbe17c2aad04bba5d11d942c159686ec49f43430463b7eee31bf"
     assert plan["source_sha_list_lf_digest"]=="b9a0559613179f31e6ee9e0d75210cce523e4dafabfba6a3d2d660f086c0d8e2"
