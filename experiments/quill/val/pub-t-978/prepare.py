@@ -81,8 +81,8 @@ def main():
               "experiment scope")
             code=once(code,'TARGET_BINARY="sk1_pub_t_961_unicode"',
                       'TARGET_BINARY="sk1_pub_t_978_unicode"',"binary target")
-            code=once(code,'"predeclared_slot_count":77,',
-                      '"predeclared_slot_count":77,\n        "parent_t961_scientific_commit":PARENT,\n        "parent_t961_zip_sha256":"03181d77d764fd6ad9377ce90ac0804da70dc02c646a41cf4553c450aeff4d80",',
+            code=once(code,'"test_classes":list(GLYPHS),\n        "predeclared_slot_count":77,',
+                      '"test_classes":list(GLYPHS),\n        "predeclared_slot_count":77,\n        "parent_t961_scientific_commit":PARENT,\n        "parent_t961_zip_sha256":"03181d77d764fd6ad9377ce90ac0804da70dc02c646a41cf4553c450aeff4d80",',
                       "parent metadata")
             code=once(code,'UPSTREAM="703808408fd919e564a90cdc236e81db3c04af8b"',
                       'UPSTREAM="703808408fd919e564a90cdc236e81db3c04af8b"\nPARENT="'+PARENT+'"',
