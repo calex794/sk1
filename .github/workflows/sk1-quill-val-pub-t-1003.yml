@@ -1,0 +1,62 @@
+name: SK1 PUB-T-1003 second original 60685 Rust STSH1 high-byte A/B
+on:
+  push:
+    branches: [sk1/quill-val-pub-t-1003]
+    paths:
+      - experiments/registry.json
+      - experiments/quill/val/pub-t-1003/**
+      - .github/workflows/sk1-quill-val-pub-t-1003.yml
+permissions:
+  contents: read
+concurrency:
+  group: sk1-quill-val-pub-t-1003
+  cancel-in-progress: true
+jobs:
+  second-original-rust-reader:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 scripts/verify_registry.py
+      - uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/rar2
+          ref: b224a614af48c273b2d4bc0881793cf0217cc16d
+          path: source-rar2
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: calex794/sk1
+          ref: 87a6733516ad6ffd1b6b97a3176f359bfeb60ca1
+          path: reference-t994
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.94.1'
+      - name: Install CFB writer for ephemeral public controls
+        run: |
+          python3 -m venv .venv-sk1-t1003
+          .venv-sk1-t1003/bin/pip install --quiet olefile==0.47
+      - name: Compile actual unchanged Rust Reader, disposable source-safe probe
+        run: |
+          cp experiments/quill/val/pub-t-1003/sk1-t1003-reader-align.rs \
+            source-rar2/vendor/producer-a/crates/pub-viewer/src/bin/sk1-t1003-reader-align.rs
+          cargo build --manifest-path source-rar2/vendor/producer-a/Cargo.toml \
+            -p pub-viewer --bin sk1-t1003-reader-align
+      - name: Check original and two two-byte controls against real Rust
+        run: |
+          .venv-sk1-t1003/bin/python experiments/quill/val/pub-t-1003/run.py \
+            source-rar2 reference-t994 \
+            source-rar2/vendor/producer-a/target/debug/sk1-t1003-reader-align \
+            source-safe-t1003/report.json
+          python3 experiments/quill/val/pub-t-1003/check_report.py source-safe-t1003/report.json
+      - name: Export source-safe numeric evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sk1-pub-t-1003-60685-rust-alignment-evidence
+          path: source-safe-t1003/report.json
+          if-no-files-found: warn
+          retention-days: 30
