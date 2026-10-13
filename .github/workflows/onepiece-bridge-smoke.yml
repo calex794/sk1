@@ -1,0 +1,44 @@
+name: One Piece public bridge connectivity smoke
+
+on:
+  push:
+    paths:
+      - '.github/workflows/onepiece-bridge-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout existing approved book scraper
+        uses: actions/checkout@v4
+        with:
+          repository: Lalalalendia/med
+          ref: main
+          path: source-med
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install existing script dependencies
+        run: python -m pip install --disable-pip-version-check requests beautifulsoup4
+      - name: Run existing book script for chapter 56; report only metadata
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p /tmp/onepiece
+          python source-med/tools/onepiece-fanmtl/fetch_chapter.py --chapter 56 --out /tmp/onepiece/056.txt
+          status=$?
+          if [ -f /tmp/onepiece/056.txt ]; then
+            wc -c /tmp/onepiece/056.txt
+            head -n 4 /tmp/onepiece/056.txt
+            echo "FETCH_RESULT=TEXT_AVAILABLE"
+          else
+            echo "FETCH_RESULT=NO_TEXT"
+          fi
+          rm -f /tmp/onepiece/056.txt
+          exit "$status"
